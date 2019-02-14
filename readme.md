@@ -142,7 +142,7 @@ watchman shutdown-server
 * we dont use plain React components as mobiles cannot understand them (html)
 * we will try the app on simulator and device by ejecting it from expo. if we run it in expo it can run on device but thjrough expo
 
-### Switching Away from create-react-native-app
+### Lecture 15 - Switching Away from create-react-native-app
 
 * we will follow the app creation approach shown in [react native](https://facebook.github.io/react-native/docs/getting-started) following the 'Building Projects with Native Code' guide
 * we select our OS and target OS.
@@ -169,11 +169,170 @@ npm install -g react-native-cli
 * the command builds a nd compiles our code for android.js code is laucnshed as a thread spaewned by other android code (react native)
 * we also get a dev server to reload the app to reflect code changes
 * we have to make sure adb is set (add platform tools to the PATH)
+* IMPORTANT TROUBLESHOOTING
+```
+echo 999999 | sudo tee -a /proc/sys/fs/inotify/max_user_watches     && \
+echo 999999 | sudo tee -a /proc/sys/fs/inotify/max_queued_events  && \
+echo 999999 | sudo tee -a /proc/sys/fs/inotify/max_user_instances && \
+watchman shutdown-server 
+```
+* AND `adb reverse tcp:8081 tcp:8081`
 
 ### Lecture 18 -  Running our App on a Real Android Device
 
+* we need an android device and to tturn on developer mode
+* we connect the phone to the dev machine
+* we close emulator and run `npm run android`
+
 ### Lecture 19 - Preparing XCode (for iOS)
+
+* download XCode from Mac Appstore and install it
+* we should add our apple developer account
+* dev account and team is required
 
 ### Lecture 20 - Running our App on an iOS Simulator
 
+* install xcode
+* launch it at least once
+* run react-native run-ios
+
+
 ### Lecture 21 - Running our App on an iOS Device
+
+* connect iphone to mac
+* start xcode
+* find xcode project in /ios and lauch it
+* select our attached device from the list
+* click the play button (it will recompile)
+* we need to sign our app
+* click add account and use our apple id (dev account) and team
+* restart xcode
+* we run again the command and it starts
+
+### Lecture 22 - A Good Development Setup
+
+* in android emulatr 'ctrl+m' opens debug menu (or shake real device)
+* we can enable hot reloading or live reloading
+* in ios cmnd+d for debug menu to enable live reloading
+
+### Lecture 23 - Working on the App: Adding a TextInput
+
+* in get started guide menu we have a list of components
+* so9 far we have seen <View> and <Text>
+* to capture Text input we use <TextInput />. we import it from react-native
+* props and events can be OS specific
+* we will use OnChangeText
+* we need React component state to capture text
+```
+  state = {
+    placeName: ''
+  }
+```
+* we add a handler and styling and bind the textinput to state
+```
+        <TextInput 
+          style = {{width: 300, borderColor: "black", borderWidth: 1}}
+          value={this.state.placeName} 
+          onChangeText={this.placeNameChangedHandler}
+        />
+```
+* we implement the handler to alter state
+```
+  placeNameChangedHandler = (value) => {
+    this.setState({
+      placeName: value
+    });
+  }
+```
+* it works but we need to add more functionality like clearing up text
+
+### Lecture 24 - Syling: Understanding the Basics
+
+* textinput gets placeholder as prop `placeholder= 'An awesome place'`
+* we need to fix styling a bit
+	* we remove border
+	* we float the imput to the top with flexbox like CSS flexbox
+* Flexbox uses 2 axis: Main Axis (Vertical or Column) and Cross Axis (Horizontal or Row) e.g
+```
+{
+	flex: 1,
+	flexDirection: 'column',
+	justifyContent: 'flex-start',
+	alignItems: 'flex-start'
+}
+```
+* React Native emulates CSS properties using same name but camelcase (no dash)
+* `justifyContent: 'flex-start',0` means start laying out elements starting from start of axis (top or left)
+* `flex: 1,` tells element to expand to occupy available space, relative to each other
+* `alignItems: 'flex-start'` is the alignment line of elemetns along the opposite axis of that of distribution
+* we needto add flexbox to the container containing the textview (box element)
+* default flexDirection is 'column'
+* we remove `flex: 1` and input is not resized and goes to top
+* our container sytling is now (place on top evently place w/margin pure white background)
+```
+  container: {
+    flex: 1,
+    padding: 26,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+  },
+```
+* Stylesheet component is a way in ReactNative to organize and write stylesheets (no .css files here)
+
+### Lecture 25 - More on Flexbox
+
+* React native supports only a subset of CSS properties and feats
+* [CCS props supported by React Native](https://github.com/vhpoet/react-native-styling-cheat-sheet)
+* [Flexbox tutorial](https://css-tricks.com/snippets/css/a-guide-to-flexbox/)
+
+### Lecture 26 - Positioning Elements with Flexbox
+
+*  we need to add a button to submit text
+* we will use <Button>. button is a purely convenience component. button is one of th few elements  that changes its style along different platforms
+* we import it from react-native
+* we add it in View. but we need a nested View for in row styling
+```
+  inputContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+```
+* flex: 1 makes the row element to occupy full height (stretch)
+* we remove it and add stylesheet objects for input and button to give them 70% and 30% width align them to center and give their container a witdth of 100%
+```
+          <Button
+            style = {styles.placeButton}
+            title="Add" 
+          />
+```
+
+### Lecture 27 - Adding a Button and Managing State
+
+* we write a handler for button 'placeSubmitHandler' and bind it to the 'onPress' event prop
+* we will use it to add the text from input to a state array and display the list
+* the handler appends to the placesa array the placeName using the prevState
+```
+  placeSubmitHandler = () => {
+    if(this.state.placeName.trim() === ""){
+      return;
+    }
+    this.setState(prevState=>{
+      return {
+        places: prevState.places.concat(prevState.placeName)
+      }
+    });
+  }
+```
+* we also add a new view elelemtn to add the list of places
+```
+ const placesOutput = this.state.places.map((place,i) => (
+      <Text key={i}>{place}</Text>
+    ));
+```
+* we add jsx in View
+
+### Lecture 28 - Creating a Custom Component
+
+* 
