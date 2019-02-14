@@ -364,4 +364,21 @@ export default ListItem;
 * it does not take full width as the wrapping View has no styling
 * we will declutter Ap component adding 2 custom components PlaceList and PlaceInput
 * PlaceInput will be class based and handle use input in its state
-* we put Jsx in its render
+* we put Jsx in its render() method
+* xp stylesheet
+* xp placeName state and NameChangeHandler
+* we pass in the method to mod the places list as prop to the input to be called on the onpress handler
+
+### Lecture 29 - Listening to Touch Events
+
+* we want to be able to delete an item when we press on in (touch event)
+* in ListItem View components we add as prop `onPress={props.onItemPressed}`
+* we add the prop in the parent componet where we will implement it (is where the list is reciding)
+* Views dont listen to onPress (like buttons). we need a wrapper TouchableWithoutFeedback component to be able to listen to touch events and put the onPress handler there
+* there are many Touchable components for different use (TouchableOpacity, TOuchableHighlight) Android supports TouchableNegativeFeedback for ripple effect
+* Button component is a Text wrapped in View wrapped in Touchable
+
+### Lecture 30 - Reacting to Press Events
+
+* we will remove the item instead of showing an alert
+* 

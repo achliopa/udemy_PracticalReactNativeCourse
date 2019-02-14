@@ -25,10 +25,8 @@ export default class App extends Component<Props> {
     places: []
   }
 
-  placeSubmitHandler = (place) => {
-    if(place.trim() === ""){
-      return;
-    }
+  onPlaceAdded = (place) => {
+
     this.setState(prevState=>{
         return {
           places: prevState.places.concat(place)
@@ -40,7 +38,7 @@ export default class App extends Component<Props> {
     let places;
     return (
       <View style={styles.container}>
-        <PlaceInput placeSubmitHandler={this.placeSubmitHandler}/>
+        <PlaceInput onPlaceAdded={this.onPlaceAdded}/>
         <PlaceList  places={this.state.places}/>
       </View>
     );
