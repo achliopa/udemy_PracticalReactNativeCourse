@@ -335,4 +335,33 @@ watchman shutdown-server
 
 ### Lecture 28 - Creating a Custom Component
 
-* 
+* we will create a new custom component to encapsulate the Text creating a list item
+* we create a new /src folder ans in it a /components folder
+* we name the file 'ListItem.js' for our functional component
+* i use a View as component to extent as Text allows minimum styling
+we pass the text as props names placeName and style it using Stylesheet
+```
+import React from 'react';
+import { Text, View, Stylesheet } from 'react-native';
+
+const ListItem = (props) => (
+	<View style={styles.listItem}>
+		<Text>{props.placeName}</Text>
+	</View>
+);
+
+const styles = Stylesheet.create({
+	listItem: {
+		width: "100%",
+		padding: 10,
+		backgroundColor: "#eee"
+	}
+});
+
+export default ListItem;
+```
+* i use my component in App (import it and use it instead of Text) `<ListItem key={i} placeName={place} />`
+* it does not take full width as the wrapping View has no styling
+* we will declutter Ap component adding 2 custom components PlaceList and PlaceInput
+* PlaceInput will be class based and handle use input in its state
+* we put Jsx in its render

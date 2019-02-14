@@ -9,6 +9,8 @@
 
 import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View, TextInput, Button } from 'react-native';
+import PlaceList from './src/components/PlaceList';
+import PlaceInput from './src/components/PlaceInput';
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -20,52 +22,29 @@ const instructions = Platform.select({
 type Props = {};
 export default class App extends Component<Props> {
   state = {
-    placeName: '',
     places: []
   }
 
-  placeNameChangedHandler = (value) => {
-    this.setState({
-      placeName: value
-    });
-  }
-
-  placeSubmitHandler = () => {
-    if(this.state.placeName.trim() === ""){
+  placeSubmitHandler = (place) => {
+    if(place.trim() === ""){
       return;
     }
     this.setState(prevState=>{
-      return {
-        places: prevState.places.concat(prevState.placeName)
-      }
-    });
-  }
+        return {
+          places: prevState.places.concat(place)
+        }
+    });   
+  };
 
   render() {
-    const placesOutput = this.state.places.map((place,i) => (
-      <Text key={i}>{place}</Text>
-    ));
+    let places;
     return (
       <View style={styles.container}>
-        <View style={styles.inputContainer}>
-          <TextInput 
-            style = {styles.placeInput}
-            placeholder= 'An awesome place'
-            value={this.state.placeName} 
-            onChangeText={this.placeNameChangedHandler}
-          />
-          <Button
-            style = {styles.placeButton}
-            title="Add"
-            onPress={this.placeSubmitHandler}
-          />
-        </View>
-        <View>
-          {placesOutput}
-        </View>
+        <PlaceInput placeSubmitHandler={this.placeSubmitHandler}/>
+        <PlaceList  places={this.state.places}/>
       </View>
     );
-  }
+  };
 }
 
 const styles = StyleSheet.create({
@@ -76,19 +55,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FFF',
   },
-  inputContainer: {
-    // flex: 1,
-    width: "100%",
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  placeInput: {
-    width: "70%"
-  },
-  placeButton: {
-    width: "30%"
-  },
   welcome: {
     fontSize: 20,
     textAlign: 'center',
@@ -98,5 +64,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#333333',
     marginBottom: 5,
-  },
+  }
 });
