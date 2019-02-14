@@ -380,5 +380,70 @@ export default ListItem;
 
 ### Lecture 30 - Reacting to Press Events
 
-* we will remove the item instead of showing an alert
-* 
+* we will remove the item instead of showing an alert `<ListItem key={i} placeName={place} onItemPressed={()=> props.onItemDeleted(i)} />`
+* we implement on root compoent App where list recides
+* to remove the item from list i use prev state and filter based on index
+```
+  placeDeletedHandler = index => {
+    this.setState(prevState => {
+      return {
+        places: prevState.places.filter(place, i => {
+          return (i !== index);
+        });
+      };
+    });
+  }
+```
+* if our list is very long we need scrolling
+
+### Lecture 31 - Using a ScrollView
+
+* mobiles dont automatically dd scroll bars like web. we need a specialized component 'ScrollView' and replace View in PlaceList with ScrollView
+* we test a scrollbar is added
+* for old devices scrollin a very large list with ScrollView lags. we need progressive rednering
+
+### Lecture 32 - Rendering Lists Correctly
+
+* we need progressive rendering. rendering what is needed
+* we need FlatList for this instead of ScrollView. its the og to for dynamic lists
+* Flatlist nedds data as array and the renderItem as JSX. we refactor the render method to accomodate it
+```
+const PlaceList = (props) => {
+  return (
+    <FlatList 
+      style = {styles.listContainer}
+      data = {props.places}
+      renderItem={(info)=>(
+        <ListItem 
+          place={info.item.value} 
+          onItemPressed={()=> props.onItemDeleted(i)} 
+        />
+      )}
+    />
+  );
+};
+```
+* the items in the data source need to have a key for FlatList. so need to be objects with key property. and ListItem no longer needs the key prop
+* we need to mod the places list of strings to list of objects
+```
+    this.setState(prevState=>{
+        return {
+          places: prevState.places.concat({
+            key: Math.random(),
+            value: placeName})
+        }
+    });
+```
+* index is managed by FlatList
+* in rendetItem the argument is the actual list and its item is the iterative leem,ent (object)
+* we get an error on delete as it cannot find the index. we use 'info.item.key' and filter ont he key
+```
+  this.setState(prevState => {
+      return {
+        places: prevState.places.filter((place) => {
+          return place.key !== key;
+        })
+      };
+    });
+  }
+```
