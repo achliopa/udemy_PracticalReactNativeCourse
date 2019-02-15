@@ -472,3 +472,83 @@ const PlaceList = (props) => {
 
 * if we dont have the image available locally we might want to import it from web (with URL)
 * for the example we cp the image URL
+* we emove static import
+* we make the image attribute a nested obj literal with url attr
+```
+ image: {
+              uri: "http://mangotreehostel.com/wp-content/uploads/2017/05/tours-rio-de-janeiro-mango-tree-hostel-1.jpg"
+            }
+```
+* it works with some delay as fetching is async
+* when fetching images from web we MUST set WIDTH and HEIGHT as RN cannot calculate it.
+* we can dive in Image component docs to see other image settings like naming images with @2x or @3x to mod according to device screen size
+
+### Lecture 35 - Adding a Modal
+
+* we need a new component to wrap the Modal 'PlaceDetail.js'
+* it ll be a functional component whitch returns react-native Modal comp
+```
+const PlaceDetail = props => (
+  <Modal>
+    <View>
+      <Image source={props.placeImage} />
+      <Text>{props.placeName}</Text>
+      <View>
+        <Button />
+        <Button />
+      </View>
+    </View>
+  </Modal>
+);
+```
+* we import it in App.js `import PlaceDetail from './src/components/PlaceDetail';`
+* we add it in container View but how to pass name and image of place. we have only yhe list. we need to know which is currently selected
+* we will to it in the former placeDeletedHandler which we rename 'placeSelectedHandler'
+* we also add in state placeSelected attr. 
+```
+  placeSelectedHandler = key => {
+    this.setState(prevState => {
+      return {
+        selectedPlace: prevState.places.find(place=> {
+          return place.key === key;
+        })
+      }
+    });
+  }
+```
+* we pass the place from state to the Modal `<PlaceDetail selectedPlace={this.state.selectedPlace}/>`
+* we get an issue as selectedPlace is null and PlaceDetail uses it.
+* we do conditional rendering
+* we add title to Buttons and test. modal is shown occupying screen
+* we style it with a sytlesheet obj
+* we can control the modal visibility using the 'visible' prop ad setting it to true or false. we choose to bind it to the placeSelection `visible={props.selectedPlace !== null}`
+* we can set an animation when modal shows `animationType="slide"`
+* we need to style text and image
+* we add button onPeress handlers which we pass as props from App
+* closing the modal is simple simple null the selenction to alter visible prop
+```
+  modalClosedHandler = () => {
+    this.setState({
+      selectedPlace: null
+    });
+  }
+```
+* to delete the item we reuse previous code
+```
+  placeDeletedHandler = () => {
+    this.setState(prevState => {
+      return {
+        places: prevState.places.filter((place) => {
+          return place.key !== prevState.selectedPlace.key;
+        }),
+        selectedPlace: null
+      };
+    });
+  }
+```
+* we test and it works
+* for Android we need to pass an onRequestClose prop `onRequestClose={props.onModalClosed}`
+
+### Lecture 36 - React vs React Native
+
+* 
