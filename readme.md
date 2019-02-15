@@ -447,3 +447,28 @@ const PlaceList = (props) => {
     });
   }
 ```
+
+### Lecture 33 - Adding Static images
+
+* we will add static images in our ListItem and also when we click we will get a modal to confirm deletion
+* we will now hardcode an image. later we will see how to attach an image from the phone image gallery
+* we create a new folder /assets in /src for images
+* we dl and save a sample image
+* we import it in App.js `import placeImage from './src/assets/rio.jpg'`
+* in the place object we add an image attr `image: placeImage`
+* in ListItem we use it (we pass it in PlaceList as a ListItem prop `placeImage={info.item.image}`)
+* importing the image in JS makes it an object and allows the app to optimize
+* in ListItem we import and use Image component for the image passing in the source `<Image source={props.placeImage} />`
+* we style the listitem to arrange them in a row
+```
+    flexDirection: "row",
+    alignItems: "center"
+```
+* we need to give % to image as by default rn shows the image in its narural WxH
+* if we set fixed width and height is goes on cover CSS mode subsampling the image
+* we use the Image resizeMode prop to fix it `resizeMode="contain"`
+
+### Lecture 34 - Using network Images
+
+* if we dont have the image available locally we might want to import it from web (with URL)
+* for the example we cp the image URL
