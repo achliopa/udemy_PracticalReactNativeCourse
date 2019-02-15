@@ -551,4 +551,54 @@ const PlaceDetail = props => (
 
 ### Lecture 36 - React vs React Native
 
-* 
+* vanilla React lifecycle events are there
+* most React feats are there
+
+### Lecture 37 - Javascript - Supported Features
+
+* In RN docs in Guides we can learn about JS environments
+* we can learn about the JS runtimes that execute our JS code on the devices
+* but what JS feats (eg ES7 ES6 or ES5) we can use???
+* this depends on the RN version we use
+* we can use Polyfills, axios XML parsing and so on
+* JS is running on a standalone thread
+* if its not listed we cant use it
+
+### Lecture 39 - Useful Resources & Links
+
+* [Understand the Basics](https://github.com/react-community/create-react-native-app)
+* [Understand Flexbox](https://css-tricks.com/snippets/css/a-guide-to-flexbox/)
+* [More about images](https://facebook.github.io/react-native/docs/images.html)
+
+## Section 3 - Using Redux with React Native
+
+### Lecture 41 - A Brief Redux Refresher
+
+* Redux is about using a central Store that manages application State
+* one app State for all app
+* React Components manipulate the State through dspatching Actions (like predefined messages to the store with type and payload for the data)
+* Actions reach the Reducers. one per State attribute. The Reducers updtate the State
+* Store updates trigger React Component updtates as State is bound to Component Props with the react-reduct library and the Connect HOC
+
+### Lecture 42 - Installing Redux and Creating a Basic Setup
+
+* we will move the App.js component state to Redux as this will declutter the app from passing state through props deep down the hierarchy
+* we install redux `npm i --save redux react-redux`
+* in /src we add a folder named /store for redux related code
+* in store we add a /reducers /actions
+* in /reducers we add a places.js for app reducer. we implement a boilerplate reducer adding init state
+```
+const initialState = {
+  places: [],
+  selectedPlace: null
+}
+
+const reducer = (state =initialState, action) => {
+  switch(action.type) {
+    default:
+      return state;
+  }
+}
+
+export default reducer
+```
