@@ -722,4 +722,59 @@ const RNRedux = () => (
 
 ### Lecture 46 - Connecting React Native to Redux
 
+* we now connect redux state to react components props
+* we use connect and mapStateToProps and mapDispatchToProps for actions
+* mapping state attrs to props
+```
+const mapStateToProps = state => {
+  return {
+    places:state.places.places,
+    selectedPlace: state.places.selectedPlaces
+  };
+};
+```
+* mapping action creators to props
+```
+import { addPlace, deletePlace, selectPlace, deselectPlace } from './src/store/actions'
+const mapDispatchToProps = dispatch => {
+  return {
+    onAddPlace: (name) => dispatch(addPlace(name)),
+    onDeletePlace: () => dispatch(deletePlace()),
+    onSelectPlace: (key) => dispatch(selectPlace(key)),
+    onDeselectPlace: () => dispatch(deselectPlace())
+  }
+};
+```
+* we do the bind `export default connect(mapStateToProps,mapDispatchToProps)(App);`
+* we gut out App comp removing state and handlers
+```
+  placeAddedHandler = (placeName) => {
+    this.props.onAddPlace(placeName);
+  };
+
+  placeSelectedHandler = (key) => {
+    this.props.onSelectPlace(key);
+    });
+  };
+
+  placeDeletedHandler = () => {
+    this.props.onDeletePlace();
+  }
+
+  modalClosedHandler = () => {
+    this.props.onDeselectPlace();
+  }
+```
+* also in JSX i have to replace this.state to this.props
+* We Test. It works and its FAST
+
+### Lecture 48 - Useful Resources and Links
+
+* [What's Redux](https://redux.js.org/introduction/core-concepts)
+* [React Redux](https://github.com/reduxjs/react-redux)
+
+## Section 4 - Debugging React Native Apps
+
+### Lecture 50 - Using the Remote Javascript Debugging console.log
+
 * 

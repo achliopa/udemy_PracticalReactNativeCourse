@@ -5,7 +5,7 @@ const rootReducer = combineReducers({
 	places: placesReducer
 });
 
-const configureStore() => {
+const configureStore = () => {
 	return createStore(rootReducer);
 };
 
