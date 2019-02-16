@@ -583,7 +583,7 @@ const PlaceDetail = props => (
 ### Lecture 42 - Installing Redux and Creating a Basic Setup
 
 * we will move the App.js component state to Redux as this will declutter the app from passing state through props deep down the hierarchy
-* we install redux `npm i --save redux react-redux`
+* we install redux `npm i --save redux react-redux` NOTICE: use `yarn install` instead
 * in /src we add a folder named /store for redux related code
 * in store we add a /reducers /actions
 * in /reducers we add a places.js for app reducer. we implement a boilerplate reducer adding init state
@@ -602,3 +602,124 @@ const reducer = (state =initialState, action) => {
 
 export default reducer
 ```
+
+### Lecture 43 - Setting Up Actions
+
+* we add 'actionTypes.js' file in /actions folder to add types names
+* we need an action for adding a place, one for deleting a place, one for selecting a place and one for unselecting a place
+```
+export const ADD_PLACE = "ADD_PLACE";
+export const DELETE_PLACE = "DELETE_PLACE";
+export const SELECT_PLACE = "SELECT_PLACE";
+export const DESELECT_PLACE = "DESELECT_PLACE";
+```
+* we add a 'places.js' file for writing our action creators
+* our function mimic the functions working on the places list in the app (handlers and all)
+```
+export const addPlace = (placeName) => {
+  return {
+    type: ADD_PLACE,
+    placeName
+  };
+}
+
+export const deletePlace = () => {
+  return {
+    type: DELETE_PLACE
+  };
+}
+
+export const selectPlace = (key) => {
+  return {
+    type: SELECT_PLACE,
+    placeKey: key
+  };
+}
+
+export const deselectPlace = () => {
+  return {
+    type: DESELECT_PLACE
+  };
+}
+```
+* we add an 'index.js' file to export our export creator for easy import  in components `export { addPlace, deletePlace, selectPlace, deselectPlace } from './places';`
+
+### Lecture 44 - Setting Up the Reducer
+
+* we import the action types 
+* we implement the switch case logic
+* in reducer we alwys return a new state. we dont manipulate old state (immutability)
+* we borrow code from the app so far
+```
+    case ADD_PLACE:
+      return {
+        ...state,
+        places: state.places.concat({
+                key: Math.random().toString(),
+                name: action.placeName,
+                image: {
+                  uri: "http://mangotreehostel.com/wp-content/uploads/2017/05/tours-rio-de-janeiro-mango-tree-hostel-1.jpg"
+                }
+              })
+      };
+    case DELETE_PLACE:
+      return {
+        ...state,
+        places: state.places.filter((place) => {
+                return place.key !== state.selectedPlace.key;
+            }),
+            selectedPlace: null
+      };
+    case SELECT_PLACE:
+      return {
+        ...state,
+            selectedPlace: state.places.find(place=> {
+              return place.key === action.placeKey;
+            })
+      };
+    case DESELECT_PLACE:
+      return  {
+        ...state,
+        selectedPlace: null
+      };
+```
+
+### Lecture 45 - Creating the Store
+
+* we need to connect react with redux
+* in app root we need to wrap our root component with PRovider from react-redux
+* provider binds the redux store with react
+* we need the store in /store we add 'configureStore.js' and put a factory  function to return a store
+* we `import { createStore, combineReducers } from 'redux';`
+* we create a rootReducer
+```
+const rootReducer = combineReducers({
+  places: placesReducer
+});
+```
+* we configure and export the store
+```
+const configureStore() => {
+  return createStore(rootReducer);
+};
+
+export default configureStore;`
+``
+* in index.js we import `import configureStore from './src/store/configureStore';
+`
+* in index.js  i create the store and pass it in the wrapper JSX wrapping App com
+```
+const store = configureStore();
+
+const RNRedux = () => (
+  <Provider store={store}>
+    <App />
+  </Provider>
+);
+```
+* AppRegistry expects a functional React component not just JSX blob
+* we are done
+
+### Lecture 46 - Connecting React Native to Redux
+
+* 
