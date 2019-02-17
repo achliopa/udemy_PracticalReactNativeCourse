@@ -777,4 +777,51 @@ const mapDispatchToProps = dispatch => {
 
 ### Lecture 50 - Using the Remote Javascript Debugging console.log
 
+* in emulators we can press ctrl+M (android) or ctrl+d (ios) for dev menu
+* to reload r+r (android) ctrl+r (ios)
+* we can toggle inspector. by clicking an element we see info for it
+* we can see performance monitor on to right corner
+* debug js remotely allows remote debugging. clicking debug js remotely lauches :8081/debugger-ui on dev machines browser
+* if we open chrome dev tools console we can see our console.log() printouts
+* FIX: IF we have issues we change in browser from 10.0.2.2:8081 to localhost:8081 also we set in dev settings the debug server to localhost:80881 . restart the app
+* we see it in action and it works
+
+### Lecture 51 - Debugging with Breakpoints
+
+* we Debug JS remotely activated we can add breakpoints in code with `debuger;` in our code when we reload the app we can do debuggin in our chrome dev tools. 
+* in debug mode we can navigate in sources
+
+### Lecture 52 - Debugging+++ with React native Debugger
+
+* to inspect our elements inspector of dev menu is very limited
+* 'react-native-debugger' is a great tools for the job.
+* we go to [github repo](https://github.com/jhen0409/react-native-debugger) and download latest release for our os
+* in the installation folder we run `./React\ Native\ Debugger` and then select debug JS remotely from dev tools. inthe debugger we have access to the view
+* we can see the props, edit styles and so on
+
+### Lecture 53 - Debugging Redux
+
+* in the reac-native-debugger github page we see how to add [Redux DevTools Integration](https://github.com/jhen0409/react-native-debugger/blob/master/docs/redux-devtools-integration.md)
+* in 'configureStore.js' we add an enhancer
+```
+let composeEnhancers = compose;
+
+if(__DEV__) {
+  composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+}
+
+const configureStore = () => {
+  return createStore(rootReducer, composeEnhancers());
+};
+```
+* we restart dev tools and see the redux state in debugger where we can replay the actions
+
+### Lecture 55 - Useful Resources & Links
+
+* [More about RN Debugging](https://facebook.github.io/react-native/docs/debugging.html)
+
+## Section 5 - Linking and Using Third Party Libraries
+
+### Lecture 57 - Installing Libraries
+
 * 

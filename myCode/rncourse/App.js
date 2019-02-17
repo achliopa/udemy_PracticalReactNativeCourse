@@ -13,6 +13,7 @@ import PlaceList from './src/components/PlaceList';
 import PlaceInput from './src/components/PlaceInput';
 import PlaceDetail from './src/components/PlaceDetail';
 import { addPlace, deletePlace, selectPlace, deselectPlace } from './src/store/actions';
+import { connect } from 'react-redux';
 // import placeImage from './src/assets/rio.jpg'
 
 const instructions = Platform.select({
@@ -25,21 +26,20 @@ const instructions = Platform.select({
 type Props = {};
 class App extends Component<Props> {
 
+  modalClosedHandler = () => {
+    this.props.onDeselectPlace();
+  }
+
   placeAddedHandler = (placeName) => {
     this.props.onAddPlace(placeName);
-  };
+  }
 
   placeSelectedHandler = (key) => {
     this.props.onSelectPlace(key);
-    });
-  };
+  }
 
   placeDeletedHandler = () => {
     this.props.onDeletePlace();
-  }
-
-  modalClosedHandler = () => {
-    this.props.onDeselectPlace();
   }
 
   render() {
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => {
   return {
     places:state.places.places,
-    selectedPlace: state.places.selectedPlaces
+    selectedPlace: state.places.selectedPlace
   };
 };
 
