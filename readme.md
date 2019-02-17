@@ -824,4 +824,28 @@ const configureStore = () => {
 
 ### Lecture 57 - Installing Libraries
 
-* 
+* we will add an icons library names [react-native-vector-icons](https://github.com/oblador/react-native-vector-icons) 
+* there are various icon families to choose from
+* we install it `yarn add react-native-vector-icons`
+* rn libraries have quirks depending on os so read the iinstallation instructions
+* there is an automatic way to add them and a manual
+
+### Lecture 58 - Automatic Linking
+
+* a lot of libraries take some extra steps during the linking process which can't be automated.
+* For libraries that don't require such extra steps, there is an automated way of linking available
+* we need to install an extra package: `react-native-cli` we already have it
+* to run commands with it, you need to install it globally. `npm install -g react-native-cli`
+* eafter, in your project folder, you can run `react-native link`  to automatically link all libraries that require linking ONLY IF NO ADDITIONAL STEPS REQUIRED
+
+### Lecture 59 - Linking Libraries on iOS
+
+* in xCode for every 3rd party lib with native feats we need to take the following steps:
+  * right click on libraries folder => add files to "project"
+  * click on node_modules => pick the lib we just installed
+  * in the lib folder there is an ios folder and android folder and an xcode project. we click add
+  * we click on project itself => Build Phases => Link binary with libraries => click + icon
+  * search for some words occuring in library name (search box) => find the lib => add the project file
+  * do any aditional steps speced by the lib
+
+### Lecture 60 - Linking Libraries in Android
