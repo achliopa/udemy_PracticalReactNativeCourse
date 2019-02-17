@@ -849,3 +849,26 @@ const configureStore = () => {
   * do any aditional steps speced by the lib
 
 ### Lecture 60 - Linking Libraries in Android
+
+* we follow manual installation instructions
+* in the /android folder we open the 'settings.gradle' file we add 
+```
+include ':react-native-vector-icons'
++ project(':react-native-vector-icons').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-vector-icons/android')
+```
+* in the /android/app folder we open 'build.gradle' file we add in dependencies `compile project(':react-native-vector-icons')`
+* in /android/app/src/main/java/com/rncourse/ we edit 'MainApplication.java' adding an import `import com.oblador.vectoricons.VectorIconsPackage;` and in protected List getpackages() return statement `, new VectorIconsPackage()`
+*  in `/android/app/build.gradle` we add
+```
+project.ext.vectoricons = [
+    iconFontNames: [ 'Ionicons.ttf' ] // Name of the font files you want to copy
+]
+
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+
+```
+* we run `react-native run-android`
+
+### Lecture 61 - Using Library Features: Adding Icons
+
+* 
