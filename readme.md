@@ -1155,4 +1155,124 @@ export default connect(mapStateToProps)(FindPlaceScreen);
 
 ### Lecture 74 - Pushing Pages (Navigating "Forward")
 
-* 
+* in our app after navigation when we click a place on the list we get an error . we have no selectplace implemented now
+* our aim is to push a new screen on the stack of screens when the user presses on teh item 
+* the screen we will push will embed the PlaceDetail component (modal)
+* we dont want to treat it as a modal so we remove the wrapping
+* as we want to treat PlaceDetail as a  Screen we move it to /screens/PlaceDetail
+* it is a functional component and not a class but thats ok
+* we register it as a Screen in App.js
+* we now have to find a way to push it on the stack of screens we will use react-native-navigation Screen API push() method
+* react-native-navigator maintains a stack of screens for every app it manages
+* th lib gives us a prop 'navigator' exposing this method
+* in onItemSelected method in PlaceList i want to call this method using the key that gets captured by the selection. so we implement it in FindPlace as a handler
+```
+  itemSelectedHandler = key => {
+    const selPlace = this.props.places.find(place => {
+      return place.key === key;
+    });
+    this.props.navigator.push({
+      screen: "awesome-places.PlaceDetailScreen",
+      title: selPlace.name,
+      passProps: {
+        selectedPlace: selPlace
+      }
+    });
+  }
+
+```
+* it Works
+
+### Lecture 75 - Popping Pages (Navigating "Backwards")
+
+* we will transform the PlaceDetail to a class component to connect it to Redux so that we can dispatch the delete action from there (touchable)
+we refactor the component. mod the navigation. registration and add the redux binding
+* deleteplace action connector now needs a key. also we mod the reducer
+* op is happening on the PlaceDetail delete handler 
+```
+  placeDeletedHandler = () => {
+    this.props.onDeletePlace(this.props.selectedPlace.key)
+    this.props.navigator.pop();
+  }
+```
+
+### Lecture 76 - More Navigator Methods
+
+* popToRoot() method pops all screens except the root
+* showModals and dismissModals can be used for Modals in navigator
+
+### Lecture 77 - Adding a Side Drawer
+
+* we add a new screen/screens/SideDrawer/SideDrawer.js and in there we add a simple react component (functional or class)
+* we add boilerplate JSX
+* we register it as scree in App.js `Navigation.registerComponent("awesome-places.SideDrawer", () => SideDrawer);
+`
+* we will now use it in startMainTabs using drawer configuration
+```
+      drawer: {
+        left: {
+          screen: "awesome-places.SideDrawer"
+        }
+      }
+```
+* in iOs it works out of the box. for android not. so we will add menu buttons. for each tab screen that will show in the nav bar on top
+* we first get the icon `Icon.getImageSource("ios-menu",30)`
+* we then add the nav buttons in tabs object
+```
+tabs: [
+        {
+          screen: "awesome-places.FindPlaceScreen",
+          label: "Find Place",
+          title: "Find Place",
+          icon: sources[0],
+          navigatorButtons: {
+            leftButtons: [
+              {
+                icon: sources[2],
+                title: "Menu"
+              }
+            ]
+          }
+        },
+```
+* our app Crashes. navigator dows not know that the button should toggle the side drawer
+* we need t om naually wire the button to the side drawer in screen reloading
+
+### Lecture 78 - Using Navigation Events and Toggling the Drawer
+
+* we implement a constructor in SharePlaceScreen to register our custom handler as a listener on NavigationEvents at an eraly stage of the component lifecycle
+```
+  constructor(props){
+    super(props);
+    this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent);
+  }
+
+  onNavigatorEvent = event => {
+    console.log(event);
+  }
+```
+* the events logged in the console are 
+  * bottomTabSelected
+  * willAppear
+  * didAppear
+* React component lifecycle methods might not be called when using navigator. navigation events will appear though
+* SideDrawer button also emits events
+* we need to give our buttons ids that will come in event to see which was pressed
+* in statMainTab we add in both tabs `,id: "sideDrawerToggle"`
+* in the event handler we check event and use navigation obekect toggleDrawer method
+```
+  onNavigatorEvent = event => {
+    if(event.type === "NavBarButtonpress"){
+      if(event.id === "sideDrawerToggle"){
+        this.props.navigator.toggleDrawer({
+          side: "left"
+        });
+      }
+    }
+  }
+```
+* for android to work we need to explicitly se t a wdth to SideDrawer using react-native Dimensions to get the dim of device and pass it in the style `<View style={{width: Dimensions.get("window").width }}>`
+
+### Lecture 79 - Finishing the Drawer
+
+* we add some styling in SideDrawer for android
