@@ -858,10 +858,11 @@ include ':react-native-vector-icons'
 ```
 * in the /android/app folder we open 'build.gradle' file we add in dependencies `compile project(':react-native-vector-icons')`
 * in /android/app/src/main/java/com/rncourse/ we edit 'MainApplication.java' adding an import `import com.oblador.vectoricons.VectorIconsPackage;` and in protected List getpackages() return statement `, new VectorIconsPackage()`
+* The AUTO linking way is:
 *  in `/android/app/build.gradle` we add
 ```
 project.ext.vectoricons = [
-    iconFontNames: [ 'Ionicons.ttf' ] // Name of the font files you want to copy
+    iconFontNames: [ 'IonIcons.ttf' ] // Name of the font files you want to copy
 ]
 
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
@@ -870,5 +871,38 @@ apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 * we run `react-native run-android`
 
 ### Lecture 61 - Using Library Features: Adding Icons
+
+* icons have to be added in textfields
+* in PlaceDetail.js we will create our own custom button using an icon
+* we import TouchableOpacity to replace Button
+* we `import Icon from 'react-native-vector-icons/Ionicons';`
+* we add an ICon comp size it and use name for the proper icon
+* rerun react-native
+* it shows . we wrap it with View for styling
+* we add the handler and delete the delete button
+```
+        <TouchableOpacity onPress={props.onItemDeleted}>
+          <View style={styles.deleteButton}>
+            <Icon 
+              size={30}
+              name="ios-trash"
+              color="red"
+            />
+          </View>
+        </TouchableOpacity>
+```
+
+## Section 6 - Navigation in React Native Apps
+
+### Lecture 63 - Module Introduction
+
+* Topics Covered
+  * Whats different in Mobile navigation
+  * Available Solutions
+  * How-to: Stack Based Navi, Tab-based Navi, Side Drawers
+  * How to: Pass data around
+  * Add Redux in the mix
+
+### Lecture 64 - Navigation in Web Apps vs Native Apps
 
 * 
