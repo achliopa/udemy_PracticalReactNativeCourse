@@ -905,4 +905,143 @@ apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 
 ### Lecture 64 - Navigation in Web Apps vs Native Apps
 
+* In Web we have URLs: React Router looks into the browsers search box and calls up the relevant React COmponent
+* IN Native Apps we have: Tabs, Stacks, we still want to load React COmps though
+
+### Lecture 65 - Exploring Native Navigation Solutions
+
+* go to RN Docs => Guides => Navigating between screens
+  * NavigatorIOS: works only on iOS
+  * native-navigation: buggy unfinished
+  * [react-native-navigation](https://github.com/wix/react-native-navigation): only good all around solution currently. there is v1 and v2
+* Here we will use [ract-native-navigation v1](https://github.com/wix/react-native-navigation/tree/v1)
+* we check and will follow /docs/installation-ios.md and -android.md
+
+### Lecture 66 - Adding React Native Navigation to iOS
+
+* cping the docs:
+  * Make sure you are using react-native version >= 0.51. We also recommend using npm version >= 3
+  * Install react-native-navigation latest stable version NOTE use @1.
+```
+yarn add react-native-navigation@1.x.x
+```
+  * In Xcode, in Project Navigator (left pane), right-click on the Libraries > Add files to [project name]. Add ./node_modules/react-native-navigation/ios/ReactNativeNavigation.xcodeproj (screenshots)
+  * In Xcode, in Project Navigator (left pane), click on your project (top), then click on your target row (on the "project and targets list", which is on the left column of the right pane) and select the Build Phases tab (right pane). In the Link Binary With Libraries section add libReactNativeNavigation.a (screenshots)
+  * In Xcode, in Project Navigator (left pane), click on your project (top), then click on your project row (on the "project and targets list") and select the Build Settings tab (right pane). In the Header Search Paths section add $(SRCROOT)/../node_modules/react-native-navigation/ios. Make sure on the right to mark this new path recursive (screenshots)
+  * In Xcode, you will need to edit this file: AppDelegate.m.
+  * Replace all of its code with this reference
+  * Replace @"index.ios" with @"index" if you are using index.js as your entry point instead of index.ios.js and index.android.js (it is the default since React Native 0.49).
+
+  ### Lecture 67 - Adding React Native Navigation to iOS
+
+  * Install react-native-navigation latest stable version. `yarn add react-native-navigation@1.x.x`
+  * Add the following in 'android/settings.gradle'.
+  ```
+  include ':react-native-navigation'
+project(':react-native-navigation').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-navigation/android/app/')
+```
+  * Update SDK version in 'android/app/build.gradle' ONLY IF SDK uses is older
+  ```
+  android {
+  compileSdkVersion 25
+  buildToolsVersion "25.0.1"
+  ...
+}
+* update dependencies in same file
+dependencies {
+    implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
+    implementation 'com.android.support:design:27.1.0'
+    implementation "com.facebook.react:react-native:+" // From node_modules
+    compile fileTree(dir: "libs", include: ["*.jar"])
+    compile project(':react-native-navigation')
+}
+```
+  * it needs v25 of SDK so we replace what we had so far
+  * we replace all in dependencies
+* In MainActivity.java it should extend com.reactnativenavigation.controllers.SplashActivity instead of ReactActivity. This file can be located in android/app/src/main/java/com/yourproject/.
+```
+import com.reactnativenavigation.controllers.SplashActivity;
+public class MainActivity extends SplashActivity {
+
+}
+```
+* In MainApplication.java, add the following (Make sure that isDebug and createAdditionalReactPackages methods are implemented.)
+```
+import com.reactnativenavigation.NavigationApplication;
+
+public class MainApplication extends NavigationApplication {
+
+  @Override
+  public boolean isDebug() {
+    // Make sure you are using BuildConfig from your own application
+    return BuildConfig.DEBUG;
+  }
+
+  protected List<ReactPackage> getPackages() {
+    // Add additional packages you require here
+    // No need to add RnnPackage and MainReactPackage
+    return Arrays.<ReactPackage>asList(
+      // eg. new VectorIconsPackage()
+    );
+  }
+
+  @Override
+  public List<ReactPackage> createAdditionalReactPackages() {
+    return getPackages();
+  }
+}
+```
+* Also, add the following if you are using index.js as your entry point instead of index.ios.js and index.android.js (it is the default since React Native 0.49).
+```
+@Override
+public String getJSMainModuleName() {
+  return "index";
+}
+```
+* Update /android/app/src/main/AndroidManifest.xml and set android:name value to .MainApplication
+```
+<application
+  android:name=".MainApplication"
+  ...
+/>
+```
+* rerun the app IT WORKS BUT WE GET A BLANK SCREEN
+
+### Lecture 68 - Finishing the Library Setup
+
+* IF WE GET AN ERROR when usin both OS for simulation: in order to use ios and android with react-native-navigation we need 2 index.js files per OS then we create an 'index.android.js' and 'index.ios.js' and cp the code in both
+
+### Lecture 69 - Registering and Rendering a Screen
+
+* to show Screens in app with navigator we need to rtegister them 
+* then we have to start the navigatorapp. tell navigator what to show (programatic load)
+* we remove redux related code from index.js. basically we brinindex.js to its original form fefor adding redux
+* in /src we add anew folder named /screens
+* in screens we add /Auth folder and Auth.js for auth screen
+* screens are stateful react components. we add AutScreen boilerplate code as stateful class componment
+* we import an render some simple react-native components
+* our simple screen is ready to integrate in Navigation
+* we remove all code from App.js
+* in App.js we dont render anything just register screens and start the app for react-native-navigation
+* we `import { Navigation } from 'react-native-navigation';`
+* now we ll register the screen to Navigation . we register screens by their ID before they are rendered. 
+* first we import it `import AuthScreen from './src/screens/Auth/AuthScreen';`
+* we register it giving it an id (convension is appname.screenname) and using a callback returning the component (much like the AppRegistry.registerCOmponent())
+```
+Navigation.registerComponent("awesome-places.AuthScreen", () => AuthScreen);
+```
+* we start an app (2 types of apps  available'tapbased' and 'singlescreen') passing in an object with screens
+```
+Navigation.startSingleScreenApp({
+  screen: {
+    screen: "awesome-places.AuthScreen",
+    title: "Login"
+  }
+});
+```
+* in index.js we dont use AppRegistry and leave only `import App from './App';`
+* we restart the app and IT WORKS (style is addaptive to the OS)
+
+### Lecture 70 - Adding a Tabs Screen (Tabs Navigation)
+
 * 
