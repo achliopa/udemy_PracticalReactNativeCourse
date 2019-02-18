@@ -45,6 +45,8 @@ import java.util.List;
 //   }
 // }
 
+import com.oblador.vectoricons.VectorIconsPackage;
+
 public class MainApplication extends NavigationApplication {
 
   @Override
@@ -58,6 +60,7 @@ public class MainApplication extends NavigationApplication {
     // No need to add RnnPackage and MainReactPackage
     return Arrays.<ReactPackage>asList(
       // eg. new VectorIconsPackage()
+      new VectorIconsPackage()
     );
   }
 

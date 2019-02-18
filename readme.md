@@ -1044,4 +1044,115 @@ Navigation.startSingleScreenApp({
 
 ### Lecture 70 - Adding a Tabs Screen (Tabs Navigation)
 
+* we add a button to our auth screen triggering a loginHandler wher we want to navigate to a tab based screen
+* we add a new screens folder /MainTabs in there we add a file 'startMainTabs.js' and `import { Navigation } from 'react-native-navigation';`
+* we add two new screen files in the folder SharePlace and FindPlace both in their respecive folders /FindPlace and /SharePlace
+* we add boilerplace class Component code for both FindPlaceScreen and SharePlaceScreen adding boilerplate native JSX
+* in App.js we import and register the new screens
+```
+import FindPlaceScreen from './src/screens/FindPlace/FindPlace';
+import SharePlaceScreen from './src/screens/SharePlace/SharePlace';
+
+Navigation.registerComponent("awesome-places.SharePlaceScreen", () => SharePlaceScreen);
+Navigation.registerComponent("awesome-places.FindPlaceScreen", () => FindPlaceScreen);
+```
+* in startMainTab.js we first register the components and start a TabBasedApp setting a tabds prop passing in the screens with labels as objects
+* we implement the config oibj passin in the new screens (once registered screens can be used by id anywhere in the app code based)
+* we now have to use the starMainTabs like we used the App before
+* now we want to export a function that we can call to render these tabs
+```
+const startTabs = () => {
+  Navigation.startTabBasedApp({
+    tabs: [
+      {
+        screen: "awesome-places.FindPlaceScreen",
+        label: "Find Place",
+        title: "Find Place"
+      },
+      {
+        screen: "awesome-places.SharePlaceScreen",
+        label: "Share Place",
+        title: "Share Place",
+      }
+    ]
+  });
+}
+```
+* we import it in Auth.js and use it in the handler
+* in iOS it works . in android it breaks as it needs icons
+
+### Lecture 71 - Adding Icons to Tabs
+
+* using icons on tabs is tricky
+* we need to pass it in the icon: property as a file location. react-native-vector-icons provides a helper method for us
+* in startMainTab.js we import Icon `import Icon from 'react-native-vector-icons/Ionicons';`
+* in the code we use a Icon class method `Icon.getImageSource()` passin g in name, size color
+* the method is async and it will create issues as it returns promise...
+* we use Promis.all() to collect all promise results before moving on passing in an array of promises
+```
+Promise.all([
+    Icon.getImageSource("md-map",30),
+    Icon.getImageSource("ios-share-alt",30)
+  ]).then((sources => {
+    Navigation.startTabBasedApp({
+      tabs: [
+        {
+          screen: "awesome-places.FindPlaceScreen",
+          label: "Find Place",
+          title: "Find Place",
+          icon: sources[0]
+        },
+        {
+          screen: "awesome-places.SharePlaceScreen",
+          label: "Share Place",
+          title: "Share Place",
+          icon: sources[1]
+        }
+      ]
+    });
+  }));
+```
+* NOTICE: we need to manualy link the react-native-vector-icons to work (getImageSource does not work otherwise)
+
+### Lecture 72 - Connecting Screens to Redux
+
+* to add redux we go to the file where we register our components (App.js)
+* we import the Provider `import { Provider } from 'react-redux';`
+* we cp our commented code from index.js  to create a store
+```
+import configureStore from './src/store/configureStore';
+const store = configureStore();
+```
+* then we have to pass them in for every screen we want to connect to redux e.g `Navigation.registerComponent("awesome-places.AuthScreen", () => AuthScreen, store, Provider);`
+
+### Lecture 73 - Updating Redux
+
+* we refactor the redux side of our app
+* remove select and deselect action creators and types
+* we also remove them from reducer
+* we add binds to redux in shareplace. we import PlaceInput component to embed it in the screen (imort and render) we need to pass a handler (dispatch action)
+* so we wrap SharePlace with connect()
+```
+const mapDispatchToProps = dispatch => {
+  return {
+    onAddPlace: (name) => dispatch(addPlace(name)),
+  }
+};
+
+export default connect(null,mapDispatchToProps)(SharePlaceScreen);
+```
+* in FindPlaces we embed the PlaceList and connect to redux
+```
+const mapStateToProps = state => {
+  return {
+    places: state.places.places
+  };
+} ;
+
+export default connect(mapStateToProps)(FindPlaceScreen);
+```
+* we remove selectedPlace from reducer
+
+### Lecture 74 - Pushing Pages (Navigating "Forward")
+
 * 
