@@ -1275,4 +1275,18 @@ tabs: [
 
 ### Lecture 79 - Finishing the Drawer
 
-* we add some styling in SideDrawer for android
+* we add some styling in SideDrawer for android as StyleSheet and use an array of styles to use both inline and object stuyles 
+```
+style={[
+          styles.container, 
+          {width: Dimensions.get("window").width * 0.8 }
+        ]}
+```
+* we need to cp SideDrwer showing handler in every page (findplaces)
+
+## Section 7 - Styling & Animating React Native Apps (Correctly)
+
+
+### Lecture 82 - Module Introduction
+
+* 
