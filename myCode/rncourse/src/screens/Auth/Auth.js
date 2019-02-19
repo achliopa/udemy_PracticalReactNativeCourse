@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { View, Text, Button,TextInput, StyleSheet, ImageBackground, Dimensions } from 'react-native';
+import { View, StyleSheet, ImageBackground } from 'react-native';
 import startMainTabs from '../MainTabs/startMainTabs';
 import DefaultInput from '../../components/UI/DefaultInput';
 import HeadingText from '../../components/UI/HeadingText';
 import MainText from '../../components/UI/MainText';
+import ButtonWithBackground from '../../components/UI/ButtonWithBackground';
 import backgroundImage from '../../assets/background.jpg';
 
 class AuthScreen extends Component {
@@ -18,13 +19,13 @@ class AuthScreen extends Component {
 					<MainText>
 						<HeadingText>Please Log In</HeadingText>
 					</MainText>
-					<Button title="Switch to Login" />
+					<ButtonWithBackground color="#29aaf4">Switch to Login</ButtonWithBackground>
 					<View style={styles.inputContainer} >
 						<DefaultInput placeholder="Your E-Mail Address" style={styles.input}/>
 						<DefaultInput placeholder="Password" style={styles.input}/>
 						<DefaultInput placeholder="Confirm password" style={styles.input}/>
 					</View>
-					<Button title="Submit" onPress={this.loginHandler}/>
+					<ButtonWithBackground color="#29aaf4" onPress={this.loginHandler}>Submit</ButtonWithBackground>
 				</View>
 			</ImageBackground>
 		);

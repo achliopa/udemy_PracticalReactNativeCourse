@@ -1408,3 +1408,30 @@ export default mainText;
 
 * we will do it in /UI/ButtonWithBackground
 * we will customize TouchableHighlight element wrapping View and Text (we have done it in the past)
+```
+import React from 'react';
+import { TouchableHighlight, Text, View, StyleSheet } from 'react-native';
+
+const buttonWithBackground = props => (
+  <TouchableHighlight onPress={props.onPress}>
+    <View style={[styles.button, {backgroundColor: props.color}]}>
+      <Text>{props.children}</Text>
+    </View>
+  </TouchableHighlight>
+);
+
+const styles = StyleSheet.create({
+  button: {
+    padding: 10,
+    margin: 5
+  }
+});
+
+export default buttonWithBackground;
+```
+* this code accepts the background color as prop and the onPress handler as prop. tesxt is passed inside as children
+* we replace th e button in AuthScreen with that
+
+### Lecture 93 - Editing the "SharePlace" Screen
+
+* 
