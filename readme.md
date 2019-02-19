@@ -1518,4 +1518,24 @@ render () {
 
 ### Lecture 95 - Finishing the "Share Place" Screen
 
+* we add a state to SharePlaceScreen keeping the placeName (why??? it is in PlaceInput) we convert PlaceInput ot a functional componet and do it all in SharePlaceScreen
+* value and handler are communicated as props
+```
+          <PlaceInput 
+            placeName={this.state.placeName} 
+            onChangeText={this.placeNameChangedHandler}
+          />
+```
+
+### Lecture 96 - Your Change!
+
+* style the sidedrawer
+
+### Lecture 97 - Styling the Side Drawer
+
+* it shoudl be touchable. we import TouchableOpacity and wrap View and add an Icon for logout
+* we want icon and text in same line and view uses flexbox
+
+### Lecture 99 - Intro: Cross Platform Styles & Responsiveness
+
 * 
