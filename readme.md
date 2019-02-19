@@ -1434,4 +1434,88 @@ export default buttonWithBackground;
 
 ### Lecture 93 - Editing the "SharePlace" Screen
 
+* we ll repeat what we ve learned to restyle SharePlaceScreen
+* we render now only a PlaceInput componet
+* we want an image picker, map picker and then the PlaceInput Component restyled
+* we ll remove the Button from PlaceInput and add it to the overall form
+* we add a TextInput and Button to import image and same for map also the elements of PlaceInput we plavce them here and remove PlaceInput
+```
+      <View>
+        <Text>Share a Place with Us!</Text>
+        <View><Text>Image Preview!</Text></View>
+        <Button title="Pick Image" />
+        <View><Text>Map</Text></View>
+        <Button title="locate Me"/>
+        <TextInput placeholder="Place Name" />
+        <Button title="Share a Place" />
+      </View>
+```
+* TExt always has to be wrapped from <Text>
+* we need to style the text adding style to view
+* we give height to simulate map.. we need a scrollview as its big we import and apply it
+* we cannot add stylesheet to scrollview as it has infinite space. we need to use the `contentContainerStyle={styles.container}` for styles
+* we cannot scroll in android. so this props is problematic in android. to fix it we nest a View and add therer ethe stylesheet
+* it works now
+* we add our DefaultInput as textinput
+* to add margin around buttons we wrap the m in a View (buttons cannot be styled directly)
+* we use MainText and HeadingText
+* we add an Image instead of placeholder and style it
+* our final render() method
+```
+render () {
+    return (
+      <ScrollView>
+        <View style={styles.container}>
+          <MainText>
+            <HeadingText>Share a Place with us!</HeadingText>
+          </MainText>
+          <View style={styles.placeholder}>
+            <Image source={imagePlaceholder} style={styles.previewImage} />
+          </View>
+          <View style={styles.button}>
+            <Button title="Pick Image" />
+          </View>
+          <View style={styles.placeholder}>
+            <Text>Map</Text>
+          </View>
+          <View style={styles.button}>
+            <Button title="locate Me"/>
+          </View>
+          <DefaultInput placeholder="Place Name" />
+          <View style={styles.button}>
+            <Button title="Share a Place" />
+          </View>
+        </View>
+      </ScrollView>
+    );
+  }
+```
+
+### Lecture 94 - Syling & Splitting the "Share Place" screen
+
+* we gut out `<DefaultInput placeholder="Place Name" />` and place it in PlaceInput render replacing all JSX and removing all styles
+* we dont need the submitt handler as button is not there and leave only the changeHandler to capture text inpuyt change
+* defaultinput distributes all props in the wrapped textinput so we pass in the state and the handler
+* we import the PlaceInput in SharePlace and use it
+* we add a PickImage component as class based
+* we put in the render all image related JSX from SharePlace 
+```
+  render() {
+    return (
+      <View>
+        <View style={styles.placeholder}>
+          <Image source={imagePlaceholder} style={styles.previewImage} />
+        </View>
+        <View style={styles.button}>
+          <Button title="Pick Image" onPress={() => alert('Pick Image!')}/>
+        </View>
+      </View>
+    );
+```
+* we import the component and use it in SharePlaceScreen
+* we do the same for PickLocation component
+* our view is broken as we added child elements to flex that are unstyles (extra views). we style them  in stylesheets
+
+### Lecture 95 - Finishing the "Share Place" Screen
+
 * 
