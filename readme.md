@@ -1289,4 +1289,122 @@ style={[
 
 ### Lecture 82 - Module Introduction
 
-* 
+* we will hanlde orientation changes
+* we will style based on OS
+
+### Lecture 83 - Using StyleSheet vs Normal JS Objects
+
+* StyleSheet creates a styles object in the end but
+  * it validates the styles
+  * it sends them to native code more efficiently
+* we  should use StyleSheets whenever possible
+
+### Lecture 84 - Vanilla CS vs React Native Styles
+
+* View items use flexbox
+* main stylable componets are View and Text
+* we use the RN  version of CSS styling
+* using stings to pass css style properies is not valid. RN syntax is a must
+
+### Lecture 85 - Flexbox in Action
+
+* we start styling with AuthScreen
+* we add 3 text inputs and 2 buttons
+* we use flexbox for styling
+* if we add flex: 1 to container it expands to all avaialbel space (no siblings)
+* flexbox justifyCOntnet distributes allog the main axis (flexDirection)
+* alignItems: "center" aligns on cross axis the center od items
+
+### Lecture 86 - Styling with Relative Units
+
+* in AuthScreen stylesheet we add an input object to style text inputs using fixed width
+* fixed width is not the best choice. we can try 80%
+* an alternative is to wrap inputs in a view and style it. in that way inputs become reusable
+
+### Lecture 87 - "Global Styles" with Custom Components
+
+* we add styling in the input stylesheet object for TextInputs
+* we also remove the default android styling with a prop
+* our style is in the AuthScreen so non reusable from other Screens or Components
+* we add a Component to make it Resusable 'DefaultInput' (a functional component)
+* we use the {...props} spread operator to use the props
+```
+import React from 'react';
+import { TextInput,StyleSheet } from 'react-native';
+const defaultInput = props => (
+  <TextInput 
+    style={styles.input} 
+    underlineColorAndroid="transparent"
+    {...props}
+  />
+);
+
+const styles = StyleSheet.create({
+  input: {
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "#eee",
+    padding: 5,
+    margin: 8
+  }
+});
+
+export default defaultInput;
+```
+* we have a reusable styled TextInput which we import and use in AuthScreen
+
+### Lecture 88 - Synthetic Cascading of Styles
+
+* sometimes we want to use our reusable input but customize the style
+* in the parent component (the one that calls it we set a stylesheet object with the same name as in the Reusable component and pass it as prop). it gets passed and takes effect and overwrites the stylking. this is because we use {..props} which distributes and overwrites the props of default input with same name
+* if we move props destructuring before sth styles in default input. the local styles get applied in the end
+* to merge them we use an array `style={[styles.input, props.style]}` (order is important in the array)
+* if we pass an array of styles as prop it still works
+
+### Lecture 89 - Styling Text
+
+* to style text we can use StyleSheet
+* text elements take different styles from view elemnets
+* we follow the same pattern creating a reusable Header compoent 'HeadingText' as functional component rendering`<Text {...props} style={[styles.textHeading,props.style]}>{props.children}</Text>` to use all its props and children props (things inside the <>)
+
+### Lecture 90 - Cascading Text Styles
+
+* we want to use cascading text styles application wise like in web apps
+* we will use a MainText component to serve this purpose which we will use instead of text setting the base
+* if we wrap with text other elements the styles will cascade!!!!!!!!!
+```
+import React from 'react';
+import { Text, StyleSheet } from 'react-native';
+
+const mainText = props => (
+  <Text style={styles.mainText}>{props.children}</Text>
+);
+
+const styles = StyleSheet.create({
+  mainText: {
+    color: "#bbb"
+  }
+});
+
+export default mainText;
+```
+* in AuthScreen we wrap our HeadingText with that 
+```
+        <MainText>
+          <HeadingText>Please Log In</HeadingText>
+        </MainText>
+```
+* BEWARE that in Android a Text element cannot wrap a View element. we have to use it to wrap Texts
+
+### Lecture 91 - Adding a Background Image
+
+* in AuthScreen we ll use a backgroundimage with the ImageBackground react-0native element
+* we import and wrap the whole View passing as source the file which we import for optimization
+* we also have to set a width and set to flex 1 as view parent is not screen any more (screen sets under the hood flex: 1)
+* to fix for iOS we set in MainText background color to transparent
+* we also have to style the button (DefaultInput). explicitly setting color does not work. we need our own custom vbbutton
+
+### Lecture 92 - Creating a Re-Usable Custom Button
+
+* we will do it in /UI/ButtonWithBackground
+* we will customize TouchableHighlight element wrapping View and Text (we have done it in the past)
