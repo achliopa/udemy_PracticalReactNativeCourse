@@ -1752,4 +1752,72 @@ render () {
 
 ### Lecture 113 - Preparing The App for Animations
 
+* we want interaction in Find Places while we are loading the list. 
+* it will be asynchronous so it will make sense for the wait time
+* we will render a button instead of the list if the data are not loaded yet (conditional rendering)
+* the data fetch status that controls ther ndering is added to state
+* when we press the button we want to start the animation fade away the button and show the list so we add a press handler on touchable
+* we do conditional styling on container based on state
+
+### Lecture 114 - Using the Animated API
+
+* RN provides Animations API which hooks in the native animations
+* `Animated.Value` will change over time so adding it to React State we can use it in sytles and get animation
+```
+  state = {
+    placesLoaded: false,
+    removeAnim: new Animated.Value(1)
+  }
+```
+* to remove a prop we pass an initial val of 1 that will go to 0 over time
+* we trigger the animation in the onpress handler. usign the timing() method to set animation timing params and config. and chain the start of thee aniamtion
+```
+    placesSearchHandler = () => {
+      Amimated.timing(this.state.removeAnim, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true
+      }).start();
+    };
+```
+* we apply the animation in JSXX by wrapping the component we want to animate with the tag Animated.View. this container can be styles using the changing param we se tin state to control animation
+```
+<Animated.View
+        style={{
+          opacity: this.state.removeAnim,
+          transform: [
+            {
+              scale: this.state.removeAnim.interpolate({
+                inputRange: [0,1],
+                outputRange: [12,1]
+              })
+            }
+          ]
+        }}
+      >
+```
+* to apply the animation changing value to a different attribute with different nees we use interpolate passing in the new configuration. timing is universal but interpolate applie only to the element that uses it
+
+### Assignemnt 3 - Animations
+
+* when we use start to start an animation (we have done it) we can pass in a callback to be called when the animation is done. 
+* in it we change state (so that list is rendered) and we call a hadnler
+```
+.start(() => {
+        this.setState({
+          placesLoaded: true
+        });
+        this.placesLoadedhandler();
+      });
+```
+* we want to fade in th elist
+
+### Lecture 115 - Animations Summary
+
+* we can animate only non-layout properties
+
+## Section 8 - Handling user Input
+
+### Lecture 119 - Managing Input/ Control State
+
 * 
