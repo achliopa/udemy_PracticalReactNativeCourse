@@ -1595,4 +1595,68 @@ render () {
 
 ### Lecture 106 - Responsive Design Solutions
 
-* 
+* by default  we have no scrollview
+* to detect orientation we can use the Dimensions API
+* it gives the get() method to get for window or screen. window in android does not inclide the soft menu bar. screen does
+* usually we use window.
+* to detect orientation change we need to call get all the time. no way
+* the API emits events on dimension changes to which we can listen `addEventListener("change")`
+
+### Lecture 107 - Using the Dimensions API
+
+* we will test it in the AusthScreen
+* in landscape mode we will rearrabge the screen 
+* we do conditional rendering based on Dimensions
+```
+    if(Dimensions.get("window").height > 500) {
+      headingText = (         
+        <MainText>
+          <HeadingText>Please Log In</HeadingText>
+        </MainText>
+      );
+    }
+```
+* to syle textinputs side by side i wrap them in a view which will get conditional styling
+```
+  passwordContainer: {
+    flexDirection: Dimensions.get("window").height > 500 ? "column" : "row"
+  }
+```
+* to change each input width we wrap each in its own view that gets conditional styling
+
+### Lecture 108 - Adjusting Styles Dynamically (to changing Width / Height)
+
+* we have no responsive design as it does not change doruring change
+* we add the event Listener to Contructor
+* we use state to register orientation to use it in conditional rendering
+* in state we set inline styles,,, to use in React comps
+```
+  state = {
+    respStyles: {
+      pwContainerDirection: "column",
+      pwContainerJustifyContent: "flex-start",
+      pwWrapperWidth: "100%"
+    }
+  }
+  constructor(props) {
+    super(props);
+    Dimensions.addEventListener("change",(dims)=>{
+      this.setState({
+        respStyles: {
+          pwContainerDirection: Dimensions.get("window").height > 500 ? "column" : "row",
+          pwContainerJustifyContent: Dimensions.get("window").height > 500 ? "flex-start" : "space-between",
+          pwWrapperWidth: Dimensions.get("window").height > 500 ? "100%" : "45%"
+        }
+      });
+    })
+  }
+```
+* and we use it in style prop
+```
+            <View 
+              style={{
+                flexDirection: this.state.respStyles.pwContainerDirection,
+                justifyContent: this.state.respStyles.pwContainerJustifyContent
+              }}
+            >
+```
