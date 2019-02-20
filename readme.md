@@ -1660,3 +1660,54 @@ render () {
               }}
             >
 ```
+
+### Lecture 109 - A Better Responsive Solution
+
+* we are currently handling rensponsiveness in React component state
+* in this way we miss the optimizations Stylesheet API does in native code
+* we can solve this by adding different rules in stylesheet and then load different rules based on orientation
+```
+  landscapePasswordContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between"
+  },
+  portraitPasswordContainer: {
+    flexDirection: "column",
+    justifyContent: "flex-start"
+  },
+  landscapePasswordWrapper: {
+    width: "45%"
+  },
+  portraitPasswordWrapper: {
+    width: "100%"
+  }
+```
+* our constructor and state become
+```
+  state = {
+    viewMode: Dimensions.get("window").height > 500 ? "portrait" : "landscape"
+  }
+  constructor(props) {
+    super(props);
+    Dimensions.addEventListener("change",(dims)=>{
+      this.setState({
+        viewMode: Dimensions.get("window").height > 500 ? "portrait" : "landscape"
+      });
+    })
+  }
+```
+* in jsx we just do conditinal stylesheet loading based on state
+```
+<View 
+              style={
+                this.state.viewMode === "portrait" 
+                  ? styles.portraitPasswordContainer 
+                  : styles.landscapePasswordContainer
+              }
+            >
+```
+* for perfect center allignement in portrait mode with Flexbvox in Default Input we set margin only Top and Bottom to 8
+
+### Lecture 111 - Cleaning Up Dimensions Listeners
+
+* 
