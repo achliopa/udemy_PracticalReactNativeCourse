@@ -1538,4 +1538,61 @@ render () {
 
 ### Lecture 99 - Intro: Cross Platform Styles & Responsiveness
 
+* we are developing for 2 platforms. RN does not provide platform default styles so no-automatic cross-platform styling 
+* we ve seen only button to be autostyled
+* we also have to cover screen rotation. RN has no built-in responsiveness. flexbox helps but does not solve the problem
+
+### Lecture 100 - Cross-Platform Styling Made Easy
+
+* THere are 2 main tools to use:
+  * we have 2 index files. one per platform 'index.ios.js' and 'index.android.js'. these files start the app. in these diffferent starting points we can load different layouts or even lauch different App components
+  * Use the Platform API. provided by RN offers tools to detect OS at Runtime and use hooks to alter the render per OS
+
+### Lecture 101 - Using the Platform API
+
+* a good use for Platform API is on icons. Ionicons have different icons for IOS and Android and Buttons
+* in ButtonWithBackground we ll use Android only TouchableNativeFeedback RN component. we import it and Platform API
+* we use it in conditional rendering
+```
+.............
+  const content = (
+    <View style={[styles.button, {backgroundColor: props.color}]}>
+      <Text>{props.children}</Text>
+    </View>
+  );
+
+  if(Platform.OS === "android"){
+    return(
+      <TouchableNativeFeedback onPress={props.onPress}>
+        {content}
+      </TouchableNativeFeedback>
+    );
+  }
+..........
+```
+
+### Lecture 102 - Loading Different Icons for Different Platforms
+
+* in startMainTabs Screen we load and use some icons
+* we do an OS based choice using Platform API using a terniary expression `Icon.getImageSource(Platform.OS === 'android'? "md-map" : "ios-map",30),`
+* we do the same for sidedrawer
+
+### Lecture 103 - Using Diferent Entry Points (into the App)
+
+* in our app we have the same entry point (App Component)
+
+### Lecture 104 - Cross Platform UI Libraries
+
+* react-native-navigations is a cross-platform lib adjusting the feats to the  specific Platform
+* example cross-platform UI libs doing the heavy lifting for us are very few and not well maintained:
+  * [NativeBase](https://nativebase.io/#)
+* Building such a lib is nottrivial. RN is fast evolving
+
+### Lecture 105 - The "responsive Sytling" Problem
+
+* in login screen flexbox tries to fit in all but has issue with all margins
+* limiting orientation in configuration is a cheap way to avoid doing the work
+
+### Lecture 106 - Responsive Design Solutions
+
 * 
