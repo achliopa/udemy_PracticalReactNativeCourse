@@ -1710,4 +1710,46 @@ render () {
 
 ### Lecture 111 - Cleaning Up Dimensions Listeners
 
+* When we click on a list item in find places we get a warning: that cant perform a react state update in an unmounted component 
+* this is becaouse we attached an event listener in AuthScreen constructor but we never detached it (this causes mem leak)
+* wo detach it in componetWillUnmount lifecycle method
+```
+  componentWillUnmount() {
+    Dimensions.removeEventListener("change",(dims)=>{
+      this.setState({
+        viewMode: Dimensions.get("window").height > 500 ? "portrait" : "landscape"
+      });
+    })
+  }
+```
+* note that we need to remove the exact function we mounted
+
+### Assignment 2 - Make Place Detail Screen Responsive
+
+* we put text in a separate view
+* we set a constructor to add the listener to update styles and a lifecycle method 'componentWillUnmount' to remove it
+* we add a nested view to wrap text and icons for flebox styling
+* we do stylesheet sytling adding flexbox: 1 to contianer and subcontainers
+* we do the same pattern with state and conditional styling like in Auth screen
+
+### Lecture 112 - Styling Navigation Items (react-native-navigation)
+
+* we want to add custom styling to react-native-navigation  elem,ents
+* whenn we start our navigation apps we can pass styling objects (see the docs)
+* e,g in startTabBasedApp we can pass
+```
+      tabsStyle: {
+        tabBarSelectedButtonColor: "orabge"
+      },
+```
+* for android instead of tabsStyle we use appStyle
+* in meny bar added in FIndPlaceScreen and SharePlaceScreen we pass styling as static aclass attribute
+```
+  static navigatorStyle = {
+    navBarButtonColor: "orange"
+  }
+```
+
+### Lecture 113 - Preparing The App for Animations
+
 * 
