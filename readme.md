@@ -2049,4 +2049,85 @@ import { TRY_AUTH } from './actionTypes';
 
 ### Lecture 124 - Configuring Text Input Components
 
-* 
+* when we have keyboard showing for text inut 
+* in iOS we can use the soft keyboard
+* TextInpit supports a lot of customization. hiding text, keybaoard type
+* we set prop `autoCapitalize="none"`  `autoCorrect={false}` and `keyboardType="email-address"` to email
+* we set `secureTextEntry` prop to password
+
+### Lecture 125 - Handling the Soft Keyboard
+
+* we import 'KeyboardAvoidingView' from react-native and replace the View  inside the ImageBackground with it
+* we need to give it a behaviour (how to behave when keyboard in on) and we choose "padding"
+* we want to be able to dismiss the keyboard if we click somewhere else. we use react-nativer Keyboard API for that
+* we import TouchableWithoutFeedback to be able to capture the press event
+* we cannot wrap backgroung or keyboard tag as it will cause problem. we  choose to wrap our input fields... and set the onPress handler to ddismiss keyboard `<TouchableWithoutFeedback onPress={Keyboard.dismiss}>`
+
+### Assignment 4 - User Input
+
+* in SharePlaceScreen we have only 1 DefaultInput
+* we have to add validation (if its empty) and conditional styling
+* we rewrite the state follwoing the AuthScreen  patters 
+```
+state = {
+    controls: {
+      placeName: {
+        value: "",
+        valid: false,
+        touched: false,
+        validationRules: {
+          notEmpty: true
+        }
+      }
+    }
+  };
+```
+* where 'state.placeName' was used we make it 'this.state.controls.placeName.value'
+* we add a valitation method in utility
+```
+const notEmptyValidator = val => {
+  return val.trim() !== "";
+}
+```
+* our onChangeText handler becomes
+```
+  placeNameChangedHandler = (value) => {
+      this.setState(prevState => {
+        return {
+          controls: {
+            ...prevState.controls,
+            placeName: {
+              ...prevState.controls.placeName,
+              valid: validate(val, prevState,controls.placeName.validationRules),
+              touched: true,
+              value
+            }
+          }
+        };
+      });
+    }
+```
+* in PlaceInput we pass as prop all the placeName object
+```
+<PlaceInput 
+            placeData={this.state.controls.placeName} 
+            onChangeText={this.placeNameChangedHandler}
+          />
+```
+* we disable the button when the input is invalid
+
+### Lecture 127 - KeyboardAvoidingView and ScrollView
+
+* Depending on which device you're using, you might encounter an issue on the SharePlace screen: The input for the place name might not scroll up when typing. Your soft keyboard might overlap it.
+* You can of course also use KeyboardAvoidingView  here. Actually, adding it should be super simple:
+  * Add it to the imports
+  * Replace the wrapping <View>  with <KeyboardAvoidingView behavior="padding" style={styles.container}> 
+* The problem just is the ScrollView . Your content won't scroll up automatically - but you can do that manually. So the input can be made visible.
+* Once you close the keyboard though, the padding is likely to stick around.
+* That's because ScrollView  + KeyboardAvoidingView  don't work together very well.
+* Check the [following thread]( https://github.com/facebook/react-native/issues/10765) for a discussion on this + possible workarounds
+
+### Lecture 128 - Useful Resources & Links
+
+* [Handling Text Input (official docs)](https://facebook.github.io/react-native/docs/handling-text-input.html)
+* [TextInput Component docs](https://facebook.github.io/react-native/docs/textinput.html)
