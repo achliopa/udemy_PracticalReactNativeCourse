@@ -1991,4 +1991,62 @@ this.setState(prevState => {
 
 ### Lecture 121 - Using the Validation State
 
+* we want to use the is Valid state to give optical feedback to user through styling
+* in DefaultInput we will do conditional styling in DefaultInput
+```
+const defaultInput = props => (
+  <TextInput 
+    underlineColorAndroid="transparent"
+    {...props}
+    style={[styles.input, props.style, props.valid? null : styles.invalid]} 
+  />
+);
+```
+* we add in state a new attr for each input to know if it has been touched or not
+* in the handler we set it to true
+* we pass it in DefaultInput for styling
+* if anything is invalid we disable the submit button using again conditional styling
+* wea lso remove the touchable
+
+### Lecture 122 - Dispatching an Auth Action
+
+* when we click submit we goto MainTabs (no auth logic)
+* we ll prepare to proper auth flow with adding an auth action to redux (TRY_AUTH) an auth action controler file auth.js and add a boilerplate action
+```
+import { TRY_AUTH } from './actionTypes';
+
+ export const tryAuth = (authData) => {
+  return {
+    type: TRY_AUTH,
+    authData
+  };
+}
+```
+* our AuthScreen is already connected to redux in App.js regiserCOmponent
+* we just have to mapDispatchTOProps and import the action from /action/index
+* our login handler with the action dispatch  becomes
+```
+  loginHandler = () => {
+    const authData = {
+      email: this.state.controls.email.value,
+      password: this.state.controls.password.value,
+      confirmPassword: this.state.controls.confirmPassword.value
+    }
+    this.props.onLogin(authData);
+    startMainTabs();
+  }
+```
+
+### Lecture 123 - Switching Form (Auth) Modes
+
+* we ll now work on the switch to login button
+* we want it to work as a toggle button rendering the confirmPassword DefaultInput only when  we are in signup mode
+* we add a new state state attr in AUth Comp `authMode: "login",`
+* we add a handler to control it and bind it to the Switch TO Loging Button onPress event `onPress={this.switchAuthModeHandler}`
+* we do conditional rendering of confirmPassword Input
+* if we rotate ... we want when in login mode password to take 100% so we mod the condition for applying the styles
+* we also have to check our submission button render condition 
+
+### Lecture 124 - Configuring Text Input Components
+
 * 
