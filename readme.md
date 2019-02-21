@@ -1818,6 +1818,177 @@ render () {
 
 ## Section 8 - Handling user Input
 
+### Lecture 118 - Module Introduction
+
+* Topics covered
+  * Dynamically Render Forms
+  * Handle User Input
+  * Handle the Soft Keyboard
+
 ### Lecture 119 - Managing Input/ Control State
+
+* React dows not include form validation
+* We have to do it ourserves
+* We have to collect all the form data to an object that we will add to the state
+* we could use Redux but the form state relates only to the AuthScreen Component.
+* our state with all the form validation hooks becomes becomes
+```
+  state = {
+    viewMode: Dimensions.get("window").height > 500 ? "portrait" : "landscape",
+    controls: {
+      email: {
+        value: "",
+        valid: false,
+        validationRules: {
+          isEmail: true
+        }
+      },
+      password: {
+        value: "",
+        valid: false,
+        validationRules: {
+          minLength: 6
+        }
+      }, 
+      confirmPassword: {
+        value: "",
+        valid: false,
+        validationRules: {
+          equalTo: "password"
+        }
+      }
+    }
+  }
+```
+* we add onTextChange event handler to the DefaultInput and it will be passed downstream
+We use the new state attr in the JSXand asdd a handler for when tesxt changes
+```
+            <DefaultInput 
+              placeholder="Your E-Mail Address" 
+              style={styles.input}
+              value={this.state.controls.email.value}
+              onChangeText={(val) => this.updateInputState("email",val)}
+            />
+```
+* we use an arrow method to wrap the handler as we want to pass in arguments and return the val which is expected by textInputHandler
+* we impement a parametrical text handler to use in all 3 inputs
+* we use [key] to interpolate object attributes based on input arg and also we use the prevState callback to have control before we actualy set the state
+```
+  updateInputState = (key, value) => {
+    this.setState(prevState => {
+      return {
+        controls: {
+          ...prevState.controls,
+          [key]: {
+            ...prevState.controls[key],
+            value: value
+          }
+        }
+      }
+    });
+  }
+```
+* we repeat for password and confirmPassword
+
+### Lecture 120 - Adding Custom Validation Logic
+
+* our our goal is look at the ruels in state and update them accordingly based on bvalu and also change valid status
+* we will add a file in /src/utility folder named validation.js and add validation methods
+* we implemente a validate method that gets the value and the rules. we ll do the validation of the val based on the rules passed
+* GOOD TIP: we iterate in an object literal with for loop and use switch based on attributes. SWEET
+based on rule we call the appropriate method
+* treating the obj literal as a Python dictionary we can get the value with `objname[key]`
+* our validator
+```
+const validate = (val, rules) => {
+  let isValid = true;
+  for (let rule in rules) {
+    switch(rule){
+      case "isEmail":
+        isValid = isValid && emailValidator(val);
+        break;
+      case "minLength":
+        isValid = isValid && minLengthValidator(val, rules[rule]);
+        break;
+      case "equalTo":
+        isValid = isValid && equalToValidator(val, rules[rule]);
+        break;
+      default:
+        isValid = true;
+    }
+
+    return isValid;
+  }
+```
+* for email valifdation we use regEx wrapping it in / and using the test() method
+```
+const emailValidator = val => {
+   return /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
+   .test(val);
+}
+```
+* we import validate in Auth and use it to determine valid attr in state in the handler
+* we refactor the handler and teh validation method adding the connectedValue concept which we pass as 3rd param in validate() to use it there `isValid = isValid && equalToValidator(val, connectedValue[rule]);`
+* getting this value is complex and hackish
+```
+let connectedValue = {};
+    if(this.state.controls[key].validationRules.equalTo){
+      const equalControl = this.state.controls[key].validationRules.equalTo;
+      const equalValue = this.state.controls[equalCOntrol].value;
+      connectedValue = {
+        ...connectedValue,
+        equalTo: equalValue
+      };
+    }
+```
+* so our vlidate method used in auth looks like
+```
+this.setState(prevState => {
+      return {
+        controls: {
+          ...prevState.controls,
+          [key]: {
+            ...prevState.controls[key],
+            valid: validate(value,prevState.controls[key].validationRules, connectedValue),
+            value
+          }
+        }
+      };
+    });
+```
+* we do all this as we want to use the value of equalTo for validation
+* this is done because we used the name of the property as value.. so we used the key and not the value
+* we test using debuger to check react check
+* validation does not work perfectly because if after validating confirm i change the password is remains valid
+* we mod the handler is again a hackish code
+* our state setter becomes
+```
+this.setState(prevState => {
+      return {
+        controls: {
+          ...prevState.controls,
+          [key]: {
+            ...prevState.controls[key],
+            valid: validate(value,prevState.controls[key].validationRules, connectedValue),
+            value
+          },
+          confirmPassword: {
+            ...prevState.controls.confirmPassword,
+            valid: key === 'password' 
+              ? validate(
+                prevState.controls.confirmPassword.value,
+                prevState.controls.confirmPassword.validationRules, 
+                connectedValue)
+              : prevState.controls.confirmPassword.valid,
+            value
+          }
+        }
+      };
+    });
+```
+* a more elegant way would be to put an if statement before setState and add the extra code only for password mods
+* we test and it works
+
+### Lecture 121 - Using the Validation State
 
 * 
