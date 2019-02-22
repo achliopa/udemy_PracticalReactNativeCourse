@@ -2131,3 +2131,71 @@ const notEmptyValidator = val => {
 
 * [Handling Text Input (official docs)](https://facebook.github.io/react-native/docs/handling-text-input.html)
 * [TextInput Component docs](https://facebook.github.io/react-native/docs/textinput.html)
+
+## Section 9 - Using Native Device Features: Maps, Camera & Image Gallery
+
+### Lecture 129 - Module Introduction
+
+* Topics:
+  * Using React-Native-Maps
+  * Using the Camera & Image Gallery
+
+### Lecture 131 - Installing react-native-maps
+
+* [Installation Instructions]( https://github.com/react-community/react-native-maps/blob/master/docs/installation.md)
+* maps are not in the 'react-native' lib
+* airbnb has made a react-native-maps library which now is open source
+* we will add it manually
+* we install it `yarn add react-native-maps`
+* we follow the manual installation steps in githuvb doc (for android)
+  * Define the r'eact-native-maps' project in 'android/settings.gradle'
+  ```
+  include ':react-native-maps'
+  project(':react-native-maps').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-maps/lib/android')
+  ```
+  * Add the react-native-maps as an dependency of your app in' android/app/build.gradle'
+  ```
+  ...
+  dependencies {
+    ...
+    implementation project(':react-native-maps')
+  }
+
+  ```
+  * If you've defined project-wide properties (recommended) in your root build.gradle, this library will detect the presence of the following properties:
+
+  ```
+  ext {
+      .....
+      googlePlayServicesVersion = "11.8.0"
+      androidMapsUtilsVersion = "0.5+"
+  }
+  ```
+  * Specify your Google Maps API Key: Add your API key to your manifest file (android/app/src/main/AndroidManifest.xml):
+  * WE NEED TO HAVE A GOOGLE PROJECT AND USE ITS GOOGLE MAPS ANDROID API KEY for GOOGLEMAPS in the XML
+  ```
+  <application>
+   <!-- You will only need to add this meta-data tag, but make sure it's a child of application -->
+   <meta-data
+     android:name="com.google.android.geo.API_KEY"
+     android:value="Your Google maps API Key Here"/>
+  </application>
+  ```
+  * Add import com.airbnb.android.react.maps.MapsPackage; and new MapsPackage() in your MainApplication.java :
+  ```
+  import com.airbnb.android.react.maps.MapsPackage;
+  ...
+      @Override
+      protected List<ReactPackage> getPackages() {
+          return Arrays.<ReactPackage>asList(
+                  new MainReactPackage(),
+                  new MapsPackage()
+          );
+      }
+  ```
+  * Ensure that you have Google Play Services installed:
+  * For a physical device you need to search on Google for 'Google Play Services'. There will be a link that takes you to the Play Store and from there you will see a button to update it (do not search within the Play Store).
+
+### Lecture 132 - Rendering a Map
+
+* 
