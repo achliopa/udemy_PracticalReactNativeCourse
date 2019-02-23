@@ -2198,4 +2198,63 @@ const notEmptyValidator = val => {
 
 ### Lecture 132 - Rendering a Map
 
-* 
+* we want to use maps on SharePlaceScreen so replace the View placeholder in PickLocation with a Mapp view
+* we also make PickLocation a class component
+* we `import MapView from 'react-native-maps';`
+* we add MapView tro jsx and configure it through props initialRegion and style
+* we add location as a state param as we will modify it with picking from a map
+* a region for MapView is an object with 4 params. longitude,latitude,latitudeDelta,longitudeDelta. lat,lng are the cerntral point we pick and the deltas define the zoom or the area we show in the rectangle. we always set the Deltas in correlation with each other
+* our initial state is 
+```
+  state = {
+    focusedLocation: {
+      latitude: 40.65,
+      longitude: 22.9,
+      latitudeDelta: 0.0122,
+      longitudeDelta: Dimensions.get("window").width / Dimensions.get("window").height * 0.0122
+    }
+  };
+```
+* we pass it as prop and we see a map. zomm is fixed but we can scroll
+```
+        <MapView 
+          initialRegion={this.state.focusedLocation}
+          style={styles.map}
+        />
+```
+* for android we have to make sure that in Tools=>SDK Mananger=>SDK Tools=> Google Play Services is Installed
+* Also AVD version can cause it (Get a new one)
+
+### Lecture 133 - Picking a Location on a Map
+
+* we want bea ble to place a mark on the map onPress event (see the API) and implement a handler. in teh handler we get the location data and reset the state
+```
+  pickLocationHandler = (event) => {
+    const coords = event.nativeEvent.coordinate;
+    this.setState(prevState=>{
+      return {
+        focusedLocation: {
+          ...prevState.focusedLocation,
+          latitude: coords.latitude,
+          longitude: coords.longitude
+        }
+      }
+    });
+  }
+```
+* but we have an issue the state is bound to the initialRegion which is non updatable. so we pass it also to the 'region' prop
+
+### Lecture 134 - Adding a Place Marker
+
+* we want to display a marker when a user picks a location
+* we add a state attr to keep the chosenlocation and set it in the handler.
+* in render() we do conditional rendering using the MapViewMarker element
+```
+    let marker = null;
+    if(state.locationChosen) {
+      marker = <MapView.Marker 
+            coordinate={this.state.focusedLocation}
+          />
+    }
+```
+* we also have to wrap the Marker in the MapView element
