@@ -2258,3 +2258,118 @@ const notEmptyValidator = val => {
     }
 ```
 * we also have to wrap the Marker in the MapView element
+
+### Lecture 135 - Animating map Movement
+
+* we ll use the animateToRegion method from the API
+* to get access to the method we use the ref prop to get reverent to a JSX component to our code (React feature). we set it as prop in teh MapView `ref={ref => this.map = ref}`
+* we use it in pick location handler before setting location. we pass in region and animation duration
+```
+    this.map.animateToRegion({
+      ...this.state.focusedLocation,
+      latitude: coords.latitude,
+      longitude: coords.longitude
+    }, 300);
+```
+* we also dont need regionp rop from MapView as animation does the transition and sets it
+* what we get is much smoother transition
+
+### Lecture 136 - Locating the User
+
+* we want to use locate me button to set the location to the users current location 9using phones native capabilities
+* we implement our button press event handler
+* we use `navigator.geolocation.getCurrentPosition();` which takes 2 arguments, a success and error callback and options
+* in success condition we make up our own nativeEvent with coordinate and invoke the pick locationHandler passing it in. GOOD TRICK
+```
+getLocationHandler = () => {
+    navigator.geolocation.getCurrentPosition(pos => {
+      const coordsEvent = {
+        nativeEvent: {
+          coordinate: {
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude
+          }
+        }
+      };
+      this.pickLocationHandler(coordsEvent);
+    },
+    err => {
+      console.log(err);
+      alert("Fetching the position failed, please pick one manually!")
+    });
+  }
+```
+* when accessing user location we need to ask permission to do it
+* it is done automatically but app has to be prepared
+* for android we got to /android/app/src/main/AndroidManifest.xml and add a new user-permission `<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />`
+* for iOS go to xCOde => info.plist => InformationPRoperty => add row => select 'Privacy - Location Usage Descriptor' => add custom text 'lets share aplace!'
+* rerun build and it works (we are taken to Google)
+
+### Lecture 136 - Storing the Picked Location with Redux
+
+* we want to propagate teh location for SharePlace and store it in global state along with place data
+* we add it to the SharePlace state
+```
+    ...
+    location: {
+      value: null,
+      valis: false
+    }
+```
+* to se our location from  PickLocation we pass down a callback handler as a prop `onLocationPick={this.locationPickedHandler}`
+* we write down the handler
+```
+    locationPickedHandler = (location) => {
+      this.setState(prevState => {
+        return {
+          controls: {
+            ...prevState.controls,
+            location: {
+              value: location,
+              valid: true
+            }
+          }
+        };
+      });
+    }
+```
+* in PickLocation we use the callback in the main handler after setting state passing latitude and longitude
+* we expand the button disabled condition to include `... || this.state.controls.location.valid`
+* in Redux action onAddPlace we pass in the location as well
+* we mod redux action and reducer to support it
+* we test
+
+### Assignement 5: Maps
+
+* show map in PlaceDetail
+* we `import MapView from 'react-native-maps';`
+* we add a view subcontainer after image for our MapView with a Marker in
+* we want to set the mapregion using the location from slectedPlace whish is passed as prop in the navigator pucsh method where we call the PlaceDetail in FindPlaceScreen
+```
+        <View style={styles.subContainer} >
+          <MapView
+            initialRegion={{
+              ...props.selectedPlace.location,
+              latitudeDelta: 0.0122,
+              longitudeDelta: 
+                Dimensions.get("window").width / 
+                Dimensions.get("window").height * 
+                0.0122
+            }}
+            style={styles.map}
+          >
+            <MapView.Marker coordinate={{this.props.selectedPlace.location}}/>
+          </MapView>
+        </View>
+```
+* we style it as abs fill component
+```
+  map: {
+    ...StyleSheet.absoluteFillObject
+  }
+```
+* we improve styling by placing image and mapin same container (placeDeatilContainer) for styling. we also give it a flex:2 for a 2/1 ratin with rest of view
+
+### Lecture 138 - Installing react-native-image-picker
+
+* 
