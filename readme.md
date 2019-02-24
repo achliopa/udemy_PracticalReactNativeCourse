@@ -2584,4 +2584,144 @@ return dispatch => {
     });
   };
 ```
-* we lauch the debugger and lauch the app
+* we lauch the debugger and lauch the app. we test and it works we get back an object and its id (firebase id)
+* alos it is stored in firebase
+
+### Lecture 151 - Adjusting Firebase Functions
+
+* We'll write some Firebase Cloud Function Code - in case you're getting an error during deploying the function (we do that in the next lectures), try this:
+* Everything should work if you edit your 'package.json' file (in the functions folder) like this: `"@google-cloud/storage": "WHATEVER VERSION YOU HAVE HERE",` should become `"@google-cloud/storage": "1.7.0",` Thereafter, re-run npm install and try deploying again.
+* You simply install that version of @google-cloud/storage right from the start => npm install --save @google-cloud/storage@1.7
+
+### Lecture 152 - Storing Images
+
+* we want to store the image
+* we get the image as base64 string from pick-image. we coul dstore it in firebase RT DB as string
+* this is not recommended as image is a long string and RT DB is not designed for storing this
+* Firebase offers storage for our project. but storage is available through the Firebase SDK which does not play nice with RN. the solution we wuill follow is to call Firebase Cloud functions and hit the firebase storage in backend from the function. functions are avaialbel through url
+* we need the firebase tool to write and upload our firebase function. we use a tool 'firebase-tools' which is installed globally `sudo npm install -g firebase-tools`. we opt to skip sudo
+* we login `firebase login` with the credentials we used in our firebase project
+* we run `firebase init in our project root folder
+* we say yes to install dependencies in our project
+* what we get is a 'firebase.json' file in our project root and a '.firebaserc' with reference to our project and a /functions folder with prebuilt functions
+* we will work in the /functions/index.js file which is writen in node.js (expressjs sytle)
+* functions is its own project so we can install in it its own packages...
+* in /functions we install `npm install --save @google-cloud/storage@1.7` we also install cors `npm install --save cors` to be able to do CORS requests access sotrage from apps not running on same server
+* in index.js we import cors `const cors = require('cors')(origin: true);`
+* all the transaction logic is now going through cors so that fireBase accepts it..
+* it gets the image in the request body. image is in base64 format so to turn it to jpg it uses writeFileSync also an error callback is passed
+* to store the image inFirebase storage we need to create a bucket
+* to create the bucket we need the gcs (google cloud storage) which we installed . we import  it passing in a cofig object
+* the config object has the project id and a keyFile which we get from our project (we should also not reveal it to github)
+* we go to firebase console => project settings => service accoutns => (check node.js) => generate new private key => we download the file => we store the file in /functions folder and add it to .gitignore
+* we create a storage in firebase console for our bucket. cp the name and pass it in 'gcs/bucket()' to create an instance in our app
+* we upload() our file to bucket specifying our type and the path
+* for the path we need a unique id so we install the uuid package `npm install --save uuid-v4` in functions. we import it and use in path
+* we also se metadata requeired by bucket (type and token)
+
+### Lecture 154 - Finishing the Image Upload Function
+
+* as a 3rd argument in upload function we pass a callback to be called when it is done.
+* it gets an err and file param 
+* if we have no error we want to get the link to the file to be stored in the database
+* the complete function is
+```
+exports.storeImage = functions.https.onRequest((request, response) => {
+  cors(request, response, () => {
+    const body = JSON.parse(request.body);
+    fs.writeFileSync("/tmp/uploaded-image.jpg",body.image, "base64", err => {
+      console.log(err);
+      return response.status(500).json({error: err});
+    });
+    const bucket = gcs.bucket("videoapp-219519.appspot.com");
+    const uuid = UUID();
+    bucket.upload("/tmp/uploaded-image.jpg", {
+      uploadType: "media",
+      destination: "/places/" + uuid + ".jpg",
+      metadata: {
+        metadata: {
+          contentType: "image/jpeg",
+          firebaseStorageDownloadTokens: uuid
+        }
+      }
+    },(err,file) => {
+      if(!err){
+        return response.status(201).json({
+          imageUrl: "https://firebasestorage.googleapis.com/v0/b/" + 
+            bucket.name + 
+            "/o/" + 
+            encodeURIComponent(file.name) + 
+            "?alt=media&token=" + 
+            uuid
+        });
+      } else {
+        console.log(err);
+        return response.status(500).json({error: err});
+      }
+    });
+  });
+});
+
+```
+* in place.js we will invoke the function from the action creator
+* for now we comment outr the fetch() to RT DB
+* we deploy the function. we cd.. out to project root and tun `firebase deploy`
+* once deployed we get its url
+( in addPlace action creator we fetch() to this url setting th metod to post and passing the image in base64 format
+```
+    fetch("https://us-central1-videoapp-219519.cloudfunctions.net/storeImage",{
+      method: "POST",
+      body: JSON.stringify({
+        image: image.base64
+      })
+    })
+    .catch(err => console.log(err))
+    .then(res => res.json())
+    .then(parsedRes => {
+      console.log(parsedRes);
+    });
+```
+* we lauch the debugger and test
+* it works...
+
+### Lecture 155 - Storing the Remaining Data
+
+* we uncoment fetch() to the firebase RT DB 
+* we place it in the  then() of the first fetch to function
+* we return the second promise to take advantage of promise chaining. we put parsedRes.imageUrl to the  imag ein the placeData we send for storage
+* we do one last test in debugger
+* our complete action creator
+```
+export const addPlace = (placeName,location,image) => {
+  return dispatch => {
+    fetch("https://us-central1-videoapp-219519.cloudfunctions.net/storeImage",{
+      method: "POST",
+      body: JSON.stringify({
+        image: image.base64
+      })
+    })
+    .catch(err => console.log(err))
+    .then(res => res.json())
+    .then(parsedRes => {
+      const placeData = {
+        name: placeName,
+        image: parsedRes.imageUrl
+        location
+      }
+      return fetch("https://videoapp-219519.firebaseio.com/places.json", {
+        method: "POST",
+        body: JSON.stringify(placeData)
+      });
+    })
+    .catch(err => console.log(err))
+    .then(res => res.json())
+    .then(parsedRes => {
+      console.log(parsedRes);
+    });
+  };
+}
+```
+
+### Lecture 156 - Adding the Activity Indicator
+
+* 
