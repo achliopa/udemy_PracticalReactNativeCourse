@@ -2681,7 +2681,7 @@ exports.storeImage = functions.https.onRequest((request, response) => {
       console.log(parsedRes);
     });
 ```
-* we lauch the debugger and test
+* we lauch the debugger and test (we look up the stored object in firebase rt db)
 * it works...
 
 ### Lecture 155 - Storing the Remaining Data
