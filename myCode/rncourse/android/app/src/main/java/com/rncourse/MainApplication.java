@@ -12,6 +12,8 @@ import com.airbnb.android.react.maps.MapsPackage;
 import java.util.Arrays;
 import java.util.List;
 
+import com.imagepicker.ImagePickerPackage; 
+
 // public class MainApplication extends Application implements ReactApplication {
 
 //   private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
@@ -61,7 +63,8 @@ public class MainApplication extends NavigationApplication {
     return Arrays.<ReactPackage>asList(
       // eg. new VectorIconsPackage()
       new VectorIconsPackage(),
-      new MapsPackage()
+      new MapsPackage(),
+      new ImagePickerPackage()
     );
   }
 

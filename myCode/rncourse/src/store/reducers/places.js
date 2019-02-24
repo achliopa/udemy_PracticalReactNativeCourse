@@ -13,8 +13,8 @@ const reducer = (state =initialState, action) => {
 		            key: Math.random().toString(),
 		            name: action.placeName,
 		            image: {
-		              uri: "http://mangotreehostel.com/wp-content/uploads/2017/05/tours-rio-de-janeiro-mango-tree-hostel-1.jpg"
-            		},
+		            	uri: action.image.uri
+		            },
             		location: action.location
           		})
 			};

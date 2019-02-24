@@ -2372,4 +2372,170 @@ getLocationHandler = () => {
 
 ### Lecture 138 - Installing react-native-image-picker
 
-* 
+* [github repo](https://github.com/react-native-community/react-native-image-picker)
+* [installation instructions](https://github.com/react-native-community/react-native-image-picker/blob/master/docs/Install.md)
+* we install the package `yarn add react-native-image-picker`
+* We do manual installation
+* Add the following lines to android/settings.gradle:
+```
+include ':react-native-image-picker'
+project(':react-native-image-picker').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-image-picker/android')
+```
+* Add the compile line to the dependencies in android/app/build.gradle:
+```
+dependencies {
+    compile project(':react-native-image-picker')
+}
+```
+* Add the import and link the package in MainApplication.java:
+```
+import com.imagepicker.ImagePickerPackage; // <-- add this import
+
+public class MainApplication extends Application implements ReactApplication {
+    @Override
+    protected List<ReactPackage> getPackages() {
+        return Arrays.<ReactPackage>asList(
+            new MainReactPackage(),
+            new ImagePickerPackage(), // <-- add this line
+            // OR if you want to customize dialog style
+            new ImagePickerPackage(R.style.my_dialog_style)
+        );
+    }
+}
+```
+* If MainActivity is not instance of ReactActivity, you will need to implement OnImagePickerPermissionsCallback to MainActivity:
+```
+import com.imagepicker.permissions.OnImagePickerPermissionsCallback; // <- add this import
+import com.facebook.react.modules.core.PermissionListener; // <- add this import
+
+public class MainActivity extends YourActivity implements OnImagePickerPermissionsCallback {
+  private PermissionListener listener; // <- add this attribute
+
+  // Your methods here
+
+  // Copy from here
+
+  @Override
+  public void setPermissionListener(PermissionListener listener)
+  {
+    this.listener = listener;
+  }
+
+  @Override
+  public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+  {
+    if (listener != null)
+    {
+      listener.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+  }
+
+  // To here
+}
+```
+* POST INSTALL: Add the required permissions in AndroidManifest.xml:
+
+```
+<uses-permission android:name="android.permission.CAMERA" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+```
+
+### Lecture 139 - Fixing Issues with React Native Image Picker
+
+* In newer Android SDKs (>23), you actually need to ask for permission from within the app - otherwise trying to access the camera will crash the app.
+* The react-native-image-picker library will hopefully soon be updated to also cover this case and automatically request permissions (see: [https://github.com/react-community/react-native-image-picker/issues/581](https://github.com/react-community/react-native-image-picker/issues/581)).
+* Until this is done, you can add the following code to your project as a temporary workaround (if you're facing issues): [https://gist.github.com/pvanliefland/92046b17444a8760475e7cc0dae4fec7](https://gist.github.com/pvanliefland/92046b17444a8760475e7cc0dae4fec7)
+* Add this code in a file which you add to your project and then import the adjusted ImagePicker from that file and use it in your app.
+
+### Lecture 140 - Using the Image Picker
+
+* we will add image pick in PickImage Component called in SharePlaceScreen
+* we add a state to react comp to store the image
+```
+  state = {
+    pickedImage:  null
+  }
+```
+* we remove ImagePlaceholder and bind image to state `source={this.state.pickedimage}`
+* we import ImagePicker `import ImagePicker from 'react-native-image-picker';`
+* we will flesh out the pick image button handler 'pickImageHandler'
+* we call ImagePicker.showImagePicker passing in config and a callbackwhen the user finishes. depnding on the outcome either log or set the state
+```
+  pickImageHandler =  () => {
+    ImagePicker.showImagePicker({title: "Pick an Iamge"}, res => {
+      if(res.didCancel) {
+        console.log("User cancelled!");
+      } else if (res.error) {
+        console.log("Error", res.error);
+      } else {
+        this.setState({
+          pickedImage: {
+            uri: res.uri
+          }
+        });
+      }
+    });
+  }
+```
+
+### Lecture 141 - Storing the Picked Images
+
+* we will pass the image from react state in PickImage to SharePlace using props to store in the state using a prop passing a callback `<PickImage onImagePicked={this.imagePickedHandler}/>` the calback takes the ImagePicked and sets it to state
+```
+  imagePickedHandler = (image) => {
+    this.setState(prevState => {
+      return {
+        controls: {
+          ...prevState.controls,
+          image: {
+            value: image,
+            valid: true
+          }
+        }
+      };
+    });
+  }
+```
+* we also pass it to redux state (moding all action, reducer to accept a 3rd param 'image')
+```
+    case ADD_PLACE:
+      return {
+        ...state,
+        places: state.places.concat({
+                key: Math.random().toString(),
+                name: action.placeName,
+                image: {
+                  uri: action.image.uri
+                },
+                location: action.location
+              })
+      };
+```
+* we also disable button if image not valid
+* finaly we  add the callaback inthe PickImagehandler after we s et the state `this.props.onImagePicked({uri: res.uri})`
+* We test
+
+### Lecture 142 - Image Picker and the Data it Returns
+
+* with image picker we get the image uri as string but also we get it in base64 format which we can use to transfer it to a remote server 
+* so as image in redux and state we pas both when invoing the callback `this.props.onImagePicked({uri: res.uri, base64: res.data})`
+
+## Section 10 - Networking - Sending Http Requests
+
+### Lecture 145 - Module introduction
+
+* Section Topics
+  * How Does it Work?
+  * Understand fetch()
+  * handle requests and responses
+  * upload image
+
+### Lecture 146 - Sending HTTP Requests - Theory
+
+* we send http request from the app to the backend server
+* server sends back json data to consume
+* We will use Firebase DB (Firebase Realtime Database NOT Firestore)
+
+### Lecture 147 - Creating the Server
+
