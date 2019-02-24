@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
 
 const mapDispatchToProps = dispatch => {
   return {
-    onAddPlace: (name,location) => dispatch(addPlace(name,location)),
+    onAddPlace: (name,location, image) => dispatch(addPlace(name,location, image)),
   }
 };
 
