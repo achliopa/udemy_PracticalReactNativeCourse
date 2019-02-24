@@ -2537,5 +2537,51 @@ public class MainActivity extends YourActivity implements OnImagePickerPermissio
 * server sends back json data to consume
 * We will use Firebase DB (Firebase Realtime Database NOT Firestore)
 
-### Lecture 147 - Creating the Server
+### Lecture 148 - Creating the Server
 
+* we can use any backend offering a RESTful API 
+* we will use Google's Firebase 
+* we go to [Firebase](https://firebase.google.com/) => GET STARTED => Add Project => name: our-project => create project 
+* in dashboard => Database => Real Time DB => Create
+* We have a NoSQL DB to store objects. also we get the URL
+
+### Lecture 149 - Using the Fetch API
+
+* We will use RN Fetch API which is built in like in node.js (no axios)
+* fetch is newer than axios but axios is supported
+* also we can use websockets for realtime all built in RN
+* the palce toi hit the backend is in the action creator where we add a place to redux
+* any ASYNC code should go to action creator
+
+### Lecture 150 - Storing Data in Firebase
+
+* we want to add async code in action creator (in web apps we use redux-thunk)
+* we install redux-thunk `yarn add redux-thunk`
+* thunk will be applie das middleware to redux store
+* in 'configureStore.js' we import applyMidddleware from redux and also `import thunk from 'redux-thunk';`
+* our createStore method call becomes `return createStore(rootReducer, composeEnhancers(applyMiddleware(thunk)));` as in composeEnhansers we use thunk as middleware
+* now we can make our action creators async using the thunk pattern
+* normally action creators rewturn an action object
+* with thunk we return a method and thunk steps in
+* the method is a callback that gets dispatch as input. when we are done we signal it to thunk and it will return the action object to reducer
+* in the callback we fetch our RT DB in firebase with fetch() passing in the URL
+* in the URL we append /places.json which is the palce where our data will be stored remotely
+* we mod the rules to allow access set read/write to true (in firebase DB console RULES). we hit publish
+* fetch with only the URL is a GET request. to make it POST request we pass in an object setting the method to POST and a body which is a JSON pbkject
+* as fetch returns apromise. we chain a .catch() and .then()
+* in Catch() we catch failed network reqs not 4XX and 5XX errors
+* in then() we get the json part of resonse which returna a promise where we consolog the result
+```
+return dispatch => {
+    fetch("https://videoapp-219519.firebaseio.com/places.json", {
+      method: "POST",
+      body: JSON.stringify(placeData)
+    })
+    .catch(err => console.log(err))
+    .then(res => res.json())
+    .then(parsedRes => {
+      console.log(parsedRes);
+    });
+  };
+```
+* we lauch the debugger and lauch the app
