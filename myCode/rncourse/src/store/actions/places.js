@@ -1,4 +1,4 @@
-import { ADD_PLACE, DELETE_PLACE } from './actionTypes';
+import { SET_PLACES, REMOVE_PLACE } from './actionTypes';
 import { uiStartLoading, uiStopLoading } from './index';
 
 export const addPlace = (placeName,location,image) => {
@@ -12,6 +12,7 @@ export const addPlace = (placeName,location,image) => {
 		})
 		.catch(err => {
 			console.log(err);
+			alert("Something went wr0ng, please try again!");
 			dispatch(uiStopLoading());
 		})
 		.then(res => res.json())
@@ -28,6 +29,7 @@ export const addPlace = (placeName,location,image) => {
 		})
 		.catch(err => {
 			console.log(err);
+			alert("Something went wrong, please try again!");
 			dispatch(uiStopLoading());
 		})
 		.then(res => res.json())
@@ -36,16 +38,61 @@ export const addPlace = (placeName,location,image) => {
 			dispatch(uiStopLoading());
 		});
 	};
-}
+};
+
+export const getPlaces = () => {
+	return dispatch => {
+		fetch("https://videoapp-219519.firebaseio.com/places.json")
+		.catch(err => {
+			console.log(err);
+			alert("Something went wrong :)");			
+		})
+		.then(res => res.json())
+		.then(parsedRes => {
+			const places = [];
+			for(let key in parsedRes){
+				places.push({
+					...parsedRes[key],
+					image: {
+						uri: parsedRes[key].image
+					},
+					key
+				});
+			}
+			dispatch(setPlaces(places));
+		});
+	};
+};
+
+
+export const setPlaces = places => {
+	return {
+		type: SET_PLACES,
+		places,
+	}
+};
 
 export const deletePlace = (key) => {
-	return {
-		type: DELETE_PLACE,
-		placeKey: key
+	return dispatch => {
+		fetch(`https://videoapp-219519.firebaseio.com/places/${key}.json`,{
+			method: "DELETE"
+		})
+		.catch(err => {
+			console.log(err);
+			alert("Something went wrong :)");
+		})
+		.then(res => res.json())
+		.then(parsedRes => {
+			console.log("Done");
+			dispatch(removePlace(key));
+		});
 	};
-}
+};
 
-// {
-// 		type: ADD_PLACE,
+export const removePlace = key => {
+	return {
+		type: REMOVE_PLACE,
+		key
+	};
+};
 
-// 	};`

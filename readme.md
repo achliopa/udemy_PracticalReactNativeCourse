@@ -2781,4 +2781,78 @@ const mapStateToProps = (state) => {
 
 ### Lecture 157 - Handling Errors
 
-* 
+* we add alert to promise errors in onAddPlace action
+
+### Lecture 158 - Http, fetch() and Error Handling
+
+* Handling errors is important. It's also easy to misunderstand when working with fetch(). It will NOT handle 4xx or 5xx errors!
+* Instead, it'll only catch errors that occur due to missing network connectivity. Of course that's an important part, especially in mobile apps (hence it's the setup I chose). But it's not everything you want to handle.
+* We'll improve our error handling throughout the course but if you already want to ensure that you also catch 4xx and 5xx errors, you should adjust your code like this:
+```
+fetch('some-url.com')
+    .catch()
+    .then()
+    .catch(); // catches all 4xx and 5xx errors
+```
+* or
+```
+fetch('some-url.com')
+    .then()
+    .catch(); // catches all network AND 4xx, 5xx errors. Use this if you want to use the same error handling
+```
+
+### Lecture 159 - Getting Data from the Server
+
+* we are now reaqdy to implement fetching all data from teh RT DB and render them in FindPlaceScreen
+* again the pattern is action creator with thunk and  fetching the backend
+* we want to fetch in advance. when we mount the component (componentDidMount lifecycle method) before we even click to gain time
+* we also add a new action (getPlaces) in action creator. it will fetch and fire another action to be consumed by the reducer to populate the places list
+* we remove ADD_PLACE and DELTE_PLACE from reducers et all as we only need the action creator placeData are not used any more.
+* We add a SET_PLACES action tyope sor a SsetPlaces actioncreator that will set the returned list from the DB to the redux state
+* what we get back from fetch is a json array where the object we are interested in is under a id prop which we want to remove before storing it to reducx (and calling the action)
+```
+export const getPlaces = () => {
+  return dispatch => {
+    fetch("https://videoapp-219519.firebaseio.com/places.json")
+    .catch(err => {
+      console.log(err);
+      alert("Something went wrong :)");     
+    })
+    .then(res => res.json())
+    .then(parsedRes => {
+      const places = [];
+      for(let key in parsedRes){
+        places.push({
+          ...parsedRes[key],
+          id: key
+        });
+      }
+      dispatch(setPlaces(places));
+    });
+  };
+};
+
+
+export const setPlaces = places => {
+  return {
+    type: SET_PLACES,
+    places,
+  }
+};
+```
+* in reducer we add SET_PLACES
+* in ListItem the image we pass in from redux is a URL so in action creator addPlace when we build the palces object array we store the image and not the uri
+```
+          image: {
+            uri: parsed[key].image
+          }
+```
+* we call getPlaces in componentDidMount() after maping it to props
+* we test (we need to add a id) in the past all palces had a unique key
+* we rename id to key in the getPlaces() action creator (needed by list) to solve it 
+* delete place is not defined and we get an error
+
+### Assignment 6 - Http
+
+* we want to delete (delete from RT DB) we will run async code not a reducer related thing and refetch and also remove from store
+* we convert deletePlace action creator to a thunk
