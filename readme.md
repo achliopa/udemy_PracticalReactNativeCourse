@@ -2724,4 +2724,61 @@ export const addPlace = (placeName,location,image) => {
 
 ### Lecture 156 - Adding the Activity Indicator
 
+* we want to send an action whenwe start the fetch process to backend to show a spinner and one when we are done to stop showing it
+* we add new action types
+```
+* we add new action types
+
+```
+* we add a new file in /actions 'ui.js' for the action creators
+```
+export const uiStartLoading = () => {
+  return {
+    type: UI_START_LOADING  
+  };
+};
+
+export const uiStopLoading = () => {
+  return {
+    type: UI_STOP_LOADING 
+  };
+};
+```
+* the rational is to control an app redux state flag to control reaqct rendering the spinner
+* we add a reducer 'ui.js'
+```
+const reducer = (state = initialState, action) => {
+  switch(action.type) {
+    case UI_START_LOADING:
+      return {
+        ...state,
+        isLoading: true
+      };
+    case UI_STOP_LOADING:
+      return {
+        ...state,
+        isLoading: false
+      };
+    default:
+      return state;
+  }
+}
+```
+* we add the reducer to the rootReducer in configureStore
+* we expot our action creators from index
+* in our thunk enhanced onAddPlace actioncreator we dispatch start loading action before aour remote call and the stop action in the resolve or reject of the last promise `dispatch(uiStartLoading());`
+* in SharePlaceScreen we will use the flag with mapStateToProps to replace button with spinner while we are loading
+```
+const mapStateToProps = (state) => {
+  return {
+    isLoading: state.ui.isLoading
+  };
+};
+```
+* we do conditional rednering of button or text based on the flag
+* we test and it works
+* we will render instead of loading text a spinner (RN ActivityIndicator) we import it and use it in render
+
+### Lecture 157 - Handling Errors
+
 * 
