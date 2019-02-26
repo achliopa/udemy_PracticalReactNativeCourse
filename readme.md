@@ -2856,3 +2856,70 @@ export const setPlaces = places => {
 
 * we want to delete (delete from RT DB) we will run async code not a reducer related thing and refetch and also remove from store
 * we convert deletePlace action creator to a thunk
+
+### Lecture 162 - Useful Resources and Links
+
+* [fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
+* [Handling errors when using fetch](https://www.tjvantoll.com/2015/09/13/fetch-and-errors/)
+
+## Section 11 - Module Introduction
+
+### Lecture 163 - Module Introduction
+
+* Topics
+  * How Authentication Works
+  * Usinc AsyncStorage (API to store data along restarts)
+
+### Lecture 164 - How Authentication Works in React Native Apps
+
+* Autentication happens in the Backend
+* the Auth server exposes at least 2 Endpoints
+* RN App (Client) sends AUth requests.Backend replies with sthing. In a Webapp it would be a session key
+* Auth Server is a Stateless Server with a RESTful API returning a TOKEN (encoded data)
+* Only server can tell if token is valid or not
+* we store the TOken in the frontend (RN App) => Async Storage
+* When we want to access restricted info in the Srver we attach the token to the request
+
+### Lecture 165 - Enabling Firebase Authentication
+
+* We cread docs about [Firebase Auth REST API](https://firebase.google.com/docs/reference/rest/auth/)
+* we go to our firebase console => Authentication => Setup SignIn Method => Email/Password as we want to store email and password on our server
+* in the docs we see the API endpoints we have to use
+
+### Lecture 166 - Signing Users Up
+
+* we use the endpoint from docs to send a POST req passing in body an email a password and a a flag to tell if we want tthe token back asap
+
+* we will write our fetch() async requests using thunk in auth.js action creators file
+* we create a new action creator 'authSignup' using thunk we dispatch a callback fetching data from 'https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key=[API_KEY]'
+* we get our APP api key at console => Aythentication => Web setup
+```
+export const authSignup = (authData) => {
+  return dispatch => {
+    fetch(`https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=${authApiKey}`,{
+      method: 'POST',
+      body: JSON.stringify({
+        email: authData.email,
+        password: authData.password,
+        returnSecureToken: true
+      })
+    })
+    .catch(err => {
+      console.log(err);
+      alert("Authentication failed, please try again!")
+    })
+    .then(() => res.json())
+    .then(parsedRes => {
+      console.log(parsedRes);
+    });
+  };
+}
+```
+* we dispatch the action from tryAuth as this action will be a generic one to dispatch sign in or signup calls
+* we try it out
+* in the response what we are interested in is the idToken which we need to store on the device
+* we want to make sure that we access next page only if successful signed in or up
+* also we want to catch 400 and 500 errors (if some data are incorect)
+* also we want  a spinner
+
+### Lecture 167 - Using the Authentication Result (Response)
