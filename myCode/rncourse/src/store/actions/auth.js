@@ -58,5 +58,6 @@ export const authGetToken = () => {
 				resolve(token);
 			}
 		});
+		return promise;
 	};
 }

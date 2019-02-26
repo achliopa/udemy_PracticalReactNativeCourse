@@ -2992,6 +2992,22 @@ return (dispatch,getState) => {
 * we add a 'authGetToken()' action creator which we implement as async with thunk although the info we get (for now) is not async. we are geting a redux state param.
 * to return the result we use a Proimise which we create . dpending on the state of the token (exists or not) we reject and resolve the promise 
 * the promise implementation is a preparation to get the token from an async source (storage) . also it can be called from anywher in the app in a nonblocking fashion
+* note that in the end we have to return the promise (for chaining)
+```
+export const authGetToken = () => {
+  return (dispatch,getState) => {
+    const promise = new Promise((resolve,reject) => {
+      const token = getState().auth.token;
+      if(!token){
+        reject();
+      } else {
+        resolve(token);
+      }
+    });
+    return promise;
+  };
+}
+```
 * we export it in index.js
 * we import it in places.js so that in the action creators that fetch data from the backend we can get the tolken from the action in a async fashion... so we only fetch if our custom promise resolves
 ```
@@ -3001,3 +3017,9 @@ dispatch(authGetToken())
       })
 ```
 * we return the fetch promise to use promise chaining
+* we add this dispatch to  getToken to all backend data fetching actions in places.js
+* in addPlaces when we hot the cloud func for storage token is not required. we should add any auth logic in our cloud function
+
+### Lecture 174 - Protecting the Firebase Cloudfunction
+
+* 
