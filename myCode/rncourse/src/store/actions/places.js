@@ -1,5 +1,5 @@
 import { SET_PLACES, REMOVE_PLACE } from './actionTypes';
-import { uiStartLoading, uiStopLoading } from './index';
+import { uiStartLoading, uiStopLoading, authGetToken } from './index';
 
 export const addPlace = (placeName,location,image) => {
 	return dispatch => {
@@ -41,26 +41,28 @@ export const addPlace = (placeName,location,image) => {
 };
 
 export const getPlaces = () => {
-	return dispatch => {
-		fetch("https://videoapp-219519.firebaseio.com/places.json")
-		.catch(err => {
-			console.log(err);
-			alert("Something went wrong :)");			
-		})
-		.then(res => res.json())
-		.then(parsedRes => {
-			const places = [];
-			for(let key in parsedRes){
-				places.push({
-					...parsedRes[key],
-					image: {
-						uri: parsedRes[key].image
-					},
-					key
-				});
-			}
-			dispatch(setPlaces(places));
-		});
+	return (dispatch,getState) => {
+		dispatch(authGetToken())
+			.then(toekn => {
+				return fetch(`https://videoapp-219519.firebaseio.com/places.json?auth=${token}`);
+			})
+			.catch(()=>{
+				alert("No valid token found");
+			});
+			.then(res => res.json())
+			.then(parsedRes => {
+				const places = [];
+				for(let key in parsedRes){
+					places.push({
+						...parsedRes[key],
+						image: {
+							uri: parsedRes[key].image
+						},
+						key
+					});
+				}
+				dispatch(setPlaces(places));
+			});
 	};
 };
 

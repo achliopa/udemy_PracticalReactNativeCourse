@@ -2924,4 +2924,80 @@ export const authSignup = (authData) => {
 
 ### Lecture 167 - Using the Authentication Result (Response)
 
-* we use the spinner using the ui redux state flag importing the simple actions and using them in dispatch for conditional rendering
+* we use the spinner using the ui redux state flag importing the simple actions and using them in dispatch for conditional rendering in AuthScreen
+* we also want to check if parsedRes containes an error. 
+```
+      if(parsedRes.error){
+        alert("Authentication failed, please try again!");
+      }
+```
+* if not only then we want to move and show the tabs. in AuthScreen handler this is done in 'startMainTabs();'. we remove it from there as add it in last resolve of signUp action controller
+
+### Lecture 168 - Supporting Signup and Login
+
+* we want to distiguish in SingIn and SignUp depending on user choice
+we pass in to TryAuth the react state param .authMode to dispatch the respective action
+
+### Lecture 169 - User Login
+
+* we do the same like signup htiing firebase login API. we add a login action creator (thunk). to keep DRY we move all in tryAuth chanign only the string with interpolation
+
+### Lecture 179 - Protecting Routes in Firebse
+* we mod the rules in firebase so that read and write to db is granted to authed users
+```
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null"
+  }
+}
+```
+* we get unhandled promises.. we need to use token in our app now
+* to avoid unhandled promises and catch errors we put Catch after Then
+
+### Lecture 171 - Storing the Auth Token in Redux
+
+* we need to use the token we get when signup or login.
+* we should store it in redux (we dont know a better way yet)
+* what we want is 'parsedRes.idToken'
+* we add a new action type 'AUTH_SET_TOKEN'
+* we add an actionCreator
+```
+export authSetToken = token => {
+  return {
+    type: AUTH_SET_TOKEN,
+    token
+  }
+}
+```
+* and we ispatch it from tryAuth if successful
+* we add an Auth Reducer to add to state and add it to rootReducer
+
+### Lecture 172 - Using the Auth Token
+
+* how do we pass the token in our data fetchin in firebase? we meed tp append in our query '...?auth=[TOKEN]'
+* so we need to access state in our think enhanced action controllers...
+* we can do it bu modding our callbacks we return to get appart from dispatch the state with getState
+```
+return (dispatch,getState) => {
+    const token = getState().auth.token;
+  }
+```
+* else we can pass it as param in the action controller from react that has access to state
+* we test
+
+### Lecture 173 - Fetching the Token in a Re-Usable Way
+
+* we want to use a better way to get set the token. 
+* we add a 'authGetToken()' action creator which we implement as async with thunk although the info we get (for now) is not async. we are geting a redux state param.
+* to return the result we use a Proimise which we create . dpending on the state of the token (exists or not) we reject and resolve the promise 
+* the promise implementation is a preparation to get the token from an async source (storage) . also it can be called from anywher in the app in a nonblocking fashion
+* we export it in index.js
+* we import it in places.js so that in the action creators that fetch data from the backend we can get the tolken from the action in a async fashion... so we only fetch if our custom promise resolves
+```
+dispatch(authGetToken())
+      .then(toekn => {
+        return fetch(`https://videoapp-219519.firebaseio.com/places.json?auth=${token}`);
+      })
+```
+* we return the fetch promise to use promise chaining
