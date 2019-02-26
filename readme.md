@@ -2923,3 +2923,5 @@ export const authSignup = (authData) => {
 * also we want  a spinner
 
 ### Lecture 167 - Using the Authentication Result (Response)
+
+* we use the spinner using the ui redux state flag importing the simple actions and using them in dispatch for conditional rendering
