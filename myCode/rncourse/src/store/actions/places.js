@@ -3,17 +3,23 @@ import { uiStartLoading, uiStopLoading, authGetToken } from './index';
 
 export const addPlace = (placeName,location,image) => {
 	return dispatch => {
+		let authToken;
+		dispatch(uiStartLoading());
 		dispatch(authGetToken())
 		.catch(()=>{
 			alert("No valid token found");
+			dispatch(uiStopLoading());
 		})
 		.then(token => {
-			dispatch(uiStartLoading());
+			authToken = token;
 			return fetch("https://us-central1-videoapp-219519.cloudfunctions.net/storeImage",{
 				method: "POST",
 				body: JSON.stringify({
 					image: image.base64
-				})
+				}),
+				headers: {
+					Authorization: `Bearer ${authToken}`
+				}
 			});
 		})
 		.catch(err => {
@@ -28,7 +34,7 @@ export const addPlace = (placeName,location,image) => {
 				image: parsedRes.imageUrl,
 				location
 			};
-			return fetch("https://videoapp-219519.firebaseio.com/places.json", {
+			return fetch(`https://videoapp-219519.firebaseio.com/places.json?auth=${authToken}`, {
 				method: "POST",
 				body: JSON.stringify(placeData)
 			});

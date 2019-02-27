@@ -3022,4 +3022,89 @@ dispatch(authGetToken())
 
 ### Lecture 174 - Protecting the Firebase Cloudfunction
 
-* 
+* in /functions/index.js
+* we need to find out if user is authenticated or not...
+* redux state is nonexistent here as we are in the cloud
+* in the callback we check for a custom header we will implment. we just check it is there not that its valid
+```
+    if(
+      !request.headers.authorization || 
+      !request.headers.authrization.startsWith("Bearer ")
+    ){
+      console.log("No token present");
+      response.status(403).json({error: "Unauthorized"});
+      return;
+    }
+```
+* we then extract the token from header `idToken = request.headers.authorization.split("Bearer ")[1];`
+* we use then a tool 'admin' by firebase to validate it. its built in `const admin = require("firebase-admin");`
+* we need to initialize it after we initialize storage by passing in a conmfig object using our json app key
+```
+admin.initializeApp({
+  credential: admin.credential.cert(require("./videoapp.json"))
+});
+```
+* we use our idToken passing it to the admin.auth().verifyIdToken() to validate which returns a promise. upon resolve we dget the decoded token (id et all). we place all our other code in the then()
+```
+dmin.auth().verifyIdToken(idToken)
+      .then(decodedToken => {
+        ...
+```
+* we deploy
+
+### Lecture 175 - Adding Places (Authenticated)
+
+* we now have to add the token in our request to the firebase cloud fuinction
+```
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+```
+* we also pass the token to the DB fetch call (we need to make token global in the action creator. promise resolve return vars are not available down the chain)
+
+### Lecture 176 - Storing the Token in AsyncStorage
+
+* if user closes the app and relaunches the token is gone from redux state.
+* also token as coming from the firebase has an expires in param (3660sec by default)* we need peristent storage on the device
+* we will use RN AsyncStorage API. it is a key-val pair  cache  with different implementation depending on the pltform
+* it is async promise based
+* we add a new action creator in auth.js 'authStoreToken' using thunk to use AsyncStorage
+* we `import { AsyncStorage } from 'react-native';`
+* we call it `AsyncStorage.setItem("ap:auth:token",token);`
+* in authGetToken() if we dont get a token from redux store we should try getting it from AsyncStorage
+```
+if(!token){
+        AsyncStorage.setItem("ap:auth:token")
+        .catch(err => {
+          reject();
+        })
+        .then(idToken => {
+          dispatch(authSetToken(idToken));
+          resolve(idToken);
+        })
+      } else {
+        resolve(token);
+      }
+```
+
+### Lecture 177 - Adding Auth-Signin Functionality
+
+* in componentDidMount() method of AuthScreen we will do autosigning using the stered token 
+* we want to dispatch the action to see if we have a token in storage and if yes use it to move to next screen
+* its an async action and we call it 'autoSignIn'
+```
+export const authSignIn = () => {
+  return dispatch => {
+    dispatch(authGetToken())
+      .catch(err => console.log("Failed to Login");)
+      .then(token => {
+        startMainTabs();
+      });
+  };
+};
+```
+* we should also dispatch authSetToken
+* we export and add it to lifecycle method
+* in AsyncStorage catch we dont get error if our token is not in storage . only if we have problem accessing the storage... in first case we will get an empty string in then
+
+### Lecture 178 - Managing the Token Expiration
