@@ -3249,4 +3249,17 @@ export const authLogout = () => {
 
 ### Lecture 182 - Refreshing the Token without App Reloads
 
-* 
+* there is a bug if we let the token expire without reloading the app
+* in our getToken action we check the redux firt. if we get the token we us e this... as we dont check for expiration it might be stale
+* we should store expiration date in redux and check
+* in 'authStoreToken' we add `dispatch(authSetToken(token, expiryDate));`
+
+### Lecture 184 - Useful Resources & Links
+
+* [AsyncStorage](https://facebook.github.io/react-native/docs/asyncstorage.html)
+* [Firebase Auth REST API](https://firebase.google.com/docs/reference/rest/auth/)
+* [More about JWT](https://jwt.io/)
+
+## Section 12 - Polishing the App
+
+### Lecture 186 - Identifying "Improvement Potential"

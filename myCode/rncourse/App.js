@@ -105,7 +105,7 @@ Navigation.registerComponent("awesome-places.PlaceDetailScreen", () => PlaceDeta
 Navigation.registerComponent("awesome-places.SideDrawer", () => SideDrawer, store, Provider);
 
 //Start an App
-export  default () => Navigation.startSingleScreenApp({
+export default () => Navigation.startSingleScreenApp({
   screen: {
     screen: "awesome-places.AuthScreen",
     title: "Login"

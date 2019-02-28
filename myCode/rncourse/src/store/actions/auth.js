@@ -4,7 +4,6 @@ import { authApiKey } from '../../projectApiKeys';
 import { uiStartLoading, uiStopLoading } from './index';
 import startMainTabs from '../../screens/MainTabs/startMainTabs';
 import App from '../../../App';
-
  export const tryAuth = (authData,authMode) => {
 	return dispatch => {
 		let url;
@@ -48,19 +47,20 @@ import App from '../../../App';
 
 export const authStoreToken = (token, expiresIn, refreshToken) => {
 	return dispatch => {
-		dispatch(authSetToken(token));
 		const now = new Date();
 		const expiryDate = now.getTime() + 3600 * 1000;
+		dispatch(authSetToken(token, expiryDate));
 		AsyncStorage.setItem("ap:auth:token",token);
 		AsyncStorage.setItem("ap:auth:expiryDate",expiryDate.toString());
 		AsyncStorage.setItem("ap:auth:refreshToken",refreshToken);
 	};
 };
 
-export const authSetToken = token => {
+export const authSetToken = (token,expiryDate) => {
 	return {
 		type: AUTH_SET_TOKEN,
-		token
+		token,
+		expiryDate
 	};
 };
 
@@ -152,12 +152,12 @@ export const authClearStorage = () => {
 };
 
 export const authLogout = () => {
-	return dispatch => {
+	return (dispatch,getState) => {
 		dispatch(authClearStorage())
 			.then(()=>{
 				App();
 			});
-			dispatch(authRemoveToken());
+		dispatch(authRemoveToken());
 	};
 };
 
