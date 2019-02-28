@@ -3108,3 +3108,145 @@ export const authSignIn = () => {
 * in AsyncStorage catch we dont get error if our token is not in storage . only if we have problem accessing the storage... in first case we will get an empty string in then
 
 ### Lecture 178 - Managing the Token Expiration
+
+* our default expire time for token is 1h
+* we need to take into account
+* we start from parsing the param from the signup or sign in fetch reply from firebase AUTH
+* in authStoreToken we pass it in as param
+* before string it in asyncstorage or redux we convert it to timestamp taking current time into account
+* we store the expire timestamp in asyuncstorage
+```
+export const authStoreToken = (token, expiresIn) => {
+  return dispatch => {
+    dispatch(authSetToken(token));
+    const now = new Date();
+    const expiryDate = now.getTime() + expiresIn * 1000;
+    AsyncStorage.setItem("ap:auth:token",token);
+    AsyncStorage.setItem("ap:auth:expiryDate",expiryDate);
+  };
+};
+```
+
+* in authGetToken we use the expiryDate geting it from the storage we parse it and compare it to now... all is integrated in the promise chain
+* we get an error because Async storage accepts only strings not numbers. we use .toString()
+* be careful that vars are not passed on in promise chain. use method vars no in promise vars
+```
+...
+.then(tokenFromStorage => {
+          fetchedToken = tokenFromStorage;
+          if(!tokenFromStorage){
+            reject();
+            return;
+          }
+          return AsyncStorage.getItem("ap:auth:expiryDate");
+        })
+        .then(expiryDate => {
+          const parsedExpiryDate = new Date(parseInt(expiryDate));
+          const now = new Date();
+          if(parsedExpiryDate > now){
+            dispatch(authSetToken(fetchedToken));
+            resolve(fetchedToken);
+          } else {
+            reject();
+          }
+        })
+...
+```
+
+### Lecture 179 - Clearing the Auth Storage (AsyncStorage)
+
+* we want to clear the token from storage if it expires
+```
+export const authClearStorage = () => {
+  return dispatch => {
+    AsyncStorage.removeItem("ap.auth.token");
+    AsyncStorage.removeItem("ap.auth.expiryDate");
+  };
+};
+```
+* we call it if it promise fails
+
+### Lecture 180 - Refreshing the Token
+
+* firebase exposes an APi allowing us to refresh the token expiry date by using a refreshToken that firebase sends back twhen we sign in or signup in the response json obj
+* if we dont have a valid token we can use that to get one without sign in
+* we parse it and set it to store like we did for expiryDate
+* we will use it in getToken action when we see we have not token or that it expired...
+* its our last resort. we expect o get a new token that we should store and use.. (Promise helll)
+* before clearing everything when anything fails we try to get and use the refresh token
+* we see the fetch call in [docs](Exchange a refresh token for an ID token)
+* its not a JSON request but a application/x-www-form-urlencoded
+* we test in console (coment out storing exp date) and we reload our app. we see the reply with the new id_token
+* we now use it to store the new token . if we get a bad reply we clear the token to starty the auth procedure next time
+* we refactor to get error throwing if all fail and proper login.
+* our refresh token logic complete is shown below
+```
+return promise
+      .catch(err => {
+        return AsyncStorage.getItem("ap:auth:refreshToken")
+          .then(refreshToken => {
+            return fetch(`https://securetoken.googleapis.com/v1/token?key=${authApiKey}`, {
+              method: 'POST',
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+              },
+              body: `grant_type=refresh_token&refresh_token=${refreshToken}` 
+            });
+          })
+          .then(res => res.json())
+          .then(parsedRes => {
+            if(parsedRes.id_token){
+              console.log("Refresh token worked!");
+              dispatch(authStoreToken(
+                parsedRes.id_token,
+                parsedRes.expires_in,
+                parsedRes.refresh_token));
+              return parsedRes.id_token;
+            } else {
+              dispatch(authClearStorage());
+            }
+          });
+      })
+      .then(token => {
+        if(!token){
+          threow(new Error());
+        } else {
+          return token;
+        }
+      })
+```
+
+### Lecture 181 - Adding User 
+
+* we want to dispatch an action form the SideDrawer button to signout. namely clear out the token  from storage and redux store and go to auth screen
+* we add a n action type `AUTH_REMOVE_TOKEN`
+* we add an auth action creator `authLogout` with thunk
+* to reinitiate the app we need to call the app start method... it is in App.js `Navigation.startSingleScreenApp()` we expoprt a wrapper arrow function and import it in auth.js and call it
+* in index.js we call it as App();
+* in 'authClearStorage' we return the remoteItem async promise to chain the App90 call only if it resolves
+* we add a normal actio to crear state in redux wehich we call from thunk action
+```
+export const authRemoveToken = () => {
+  return {
+    type: AUTH_REMOVE_TOKEN
+  }
+};
+```
+* authLogout is ready for export
+```
+export const authLogout = () => {
+  return dispatch => {
+    dispatch(authClearStorage())
+      .then(()=>{
+        App();
+      });
+    dispatch(authRemoveToken())
+  };
+};
+```
+* we enhance SideDrawer with connect , mapdispatchtoprops and import 'authlogout'
+* we need to connect sideDrawer to redux in App.js at register
+
+### Lecture 182 - Refreshing the Token without App Reloads
+
+* 
