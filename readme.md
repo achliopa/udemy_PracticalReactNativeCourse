@@ -2315,7 +2315,7 @@ getLocationHandler = () => {
 * for iOS go to xCOde => info.plist => InformationPRoperty => add row => select 'Privacy - Location Usage Descriptor' => add custom text 'lets share aplace!'
 * rerun build and it works (we are taken to Google)
 
-### Lecture 136 - Storing the Picked Location with Redux
+### Lecture 137 - Storing the Picked Location with Redux
 
 * we want to propagate teh location for SharePlace and store it in global state along with place data
 * we add it to the SharePlace state
