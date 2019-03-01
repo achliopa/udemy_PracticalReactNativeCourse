@@ -16,7 +16,8 @@ const reducer = (state = initialState, action) => {
 		case AUTH_REMOVE_TOKEN:
 			return {
 				...state,
-				token: null
+				token: null,
+				expiryDate: null
 			};
 		default:
 			return state;

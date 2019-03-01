@@ -3263,3 +3263,99 @@ export const authLogout = () => {
 ## Section 12 - Polishing the App
 
 ### Lecture 186 - Identifying "Improvement Potential"
+
+* when we hit the backend sharing a place the wait time is long(depending on image size)
+* we want to decrease image size before the upload
+* we want to reset screen when we are done and automatically go to find places to see the list
+* also when i imedditiately hit the tab for find places i dont see anything
+* this happens because in FindPlacesScreen we load the list of places when the component mounts. when we shitch between tabs it does not remount. the component is in memory
+
+### Lecture 187 - Shrinking Image Sizes
+
+* react-native-image-picker supports reducing image size
+* in PickImage component in pickImageHandler we call 'ImagePicker.showImagePicker'
+* in this we pass config object with just title
+* we pass maxHeight and width `{title: "Pick an Iamge", maxWidth: 800, maxHeight: 600}`
+
+### Lecture 188 - Resetting the SharePlace Screen
+
+* to clear up the SharePlace after sharing a place  we need to reset the state
+* we add a new method to do it. we also remove initial state and call reset before mounting
+```
+  componentWillMount() {
+    this.reset();
+  }
+
+  reset = () => {
+    this.setState({
+      controls: {
+        placeName: {
+          value: "",
+          valid: false,
+          touched: false,
+          validationRules: {
+            notEmpty: true
+          }
+        },
+        location: {
+          value: null,
+          valid: false
+        },
+        image: {
+          value: null,
+          valid: false
+        }
+      }
+    })
+  };
+```
+* we call reset in placeAddedHandler after finishing up
+* textfield resets but no map and image. these are external components which we need to recall
+* best is to add reset methods on these as well and call them as props
+* we saw how to get access to a components method with ref in MapView. we do the same
+* we get a ref to the component from partent
+```
+          <PickImage 
+            onImagePicked={this.imagePickedHandler} 
+            ref={ref => this.imagePicker = ref}
+          />
+```
+* then call `this.imagePicker.reset();` from parent. it works. we do the same in PickLocation
+* we see an issue in PickLocation as when it is first rendered it gets initialRegion the focusedLocation from state
+* the solution is to add `region={this.state.focusedLocation}` in MapView
+
+### Lecture 189 - Redirecting to Another Tab
+
+* to navigate back to findplaces after finishing with shareplace we can add `this.props.navigator.switchToTab({tabIndex: 0})`
+* if we call in in the end of placeAddedHandler it will go there before it finishes the async call (we dont even see the spinner)
+* we want to call it from store in addPlace async action when it resolves (where we clear the spinner)
+* to acheive this we add an actionType to alter state (a flag) so that the react component will know when to call themethod PLACE_ADDED
+* we add a simple action creator 'placeAdded' that we dispatch from thunk enabled addPlace whjen it resolves. we us the action isreducer to alter a flag
+* we need also an action START_ADD_PLACE to clear the flag
+* we map state param to SharePlace Screen props
+* we add a lifecycle method (on state update) for redirection (and we imediately reset the flag)
+```
+  componentDidUpdate() {
+    if(this.props.placeAdded){
+      this.props.navigator.switchToTab({tabIndex: 0});
+      //this.props.onStartAddPlace();
+    }
+  }
+```
+* we test without reseting the state. it works but whnever we update the component the lifecycle method fires and we are redirected. we add the action to clear the flag
+* we will add the action call to a better place. in a navigation lifecycle method.
+* a method that fires whne the page becomes visible.
+* in navigation app the screen is NOT unmounted when we navigate away. is hidden
+* if we want to know when a user visits it. we use the onNavigatorEvent if we log the events we see a "ScreenChangedEvent" with id: "willAppear" and "didAppear". we use them
+```
+  onNavigatorEvent = event => {
+    if(event.type === "ScreenChangedEvent"){
+      if(event.id === "willAppear") {
+        this.props.onStartAddPlace();
+      }
+    }
+```
+
+### Lecture 190 - Loading Places All the Time
+
+* 
