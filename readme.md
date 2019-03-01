@@ -1816,6 +1816,16 @@ render () {
 
 * we can animate only non-layout properties
 
+### Lecture 117 - Useful Resources & links
+
+  * [React Native Styling Cheat Sheet](https://github.com/vhpoet/react-native-styling-cheat-sheet)
+  * [Learn all about Flexbox (for CSS, but concepts are the same)](https://css-tricks.com/snippets/css/a-guide-to-flexbox/)
+  * [Layout with Flexbox in React Native Apps (official docs)](https://facebook.github.io/react-native/docs/flexbox.html)
+  * [Styling React Native Apps (official docs)](https://facebook.github.io/react-native/docs/style.html)
+  * [Dimensions in React Native Apps (official docs)](https://facebook.github.io/react-native/docs/height-and-width.html)
+  * [Animations in React Native Apps (official docs)](https://facebook.github.io/react-native/docs/animations.html)
+  * [React Native Navigation Docs (contains explanations about how to style everything)](https://wix.github.io/react-native-navigation/#/)
+
 ## Section 8 - Handling user Input
 
 ### Lecture 118 - Module Introduction
@@ -3358,4 +3368,221 @@ export const authLogout = () => {
 
 ### Lecture 190 - Loading Places All the Time
 
-* 
+* we want to be able to see our newly added place in the list when redirecting even if our page is rendered before
+* this happens because we call onLoadPlaces() in the componentDidMount() method. and we explained how it works. we need to listen to the event and call it
+
+### Lecture 191 - Improving Http Error Handling
+
+* we want to optimize the code in our overly complex addPlaces thunk enabled action creator
+* we said tha catch blocks after fetch reqs catch network errors not app related errors
+* we mod `.then(res => res.json())` to 
+```
+    .then(res => {
+      if(res.ok){
+        return res.json()
+      } else {
+        throw(new Error());
+      }
+    })
+```
+* the error we throw will be caught in the next catch statement
+* we use it in all fetch reqs
+
+### Lecture 193 - Cleaning Stored Images from Firebase
+
+* if we remove all the places from the list. the images still exist in firebox storage (and we might be charged for it)
+* we will use Firebase RT DB Triggers to do the trick 'onDelete() event'
+* we need a connection between the uploaded file that the RT DB entry. we have the url
+* we need the imageID. we mod the cloud function to return it. we return the path `imagePath: "/places/" + uuid + ".jpg"`
+* we deploy
+* in addPlace action we get the path from the function and store it to the RT DB `imagePath: parsedRes.imagePath,`
+* when we delete the place we want to use the path to dlete the image in the storage
+* we will write a new cloud function to do this
+```
+exports.deleteImage = functions.database.ref("/places/{placeId}").onDelete(snapshot =>{
+  const placeData = snapshot.val();
+  const imagePath = placeData.imagePath;
+
+  const bucket = gcs.bucket("videoapp-219519.appspot.com");
+  return bucket.file(imagePath).delete();
+});
+```
+* the method is triggered by a db delete event.
+* it uses the gcp to access the bucket and delete the file based on path
+* it returns the promise as async cloud  functions need to now when they finish
+* we deploy we test it works!
+
+## Section 13 - Publishing the App
+
+### Lecture 195 - Module Introduction
+
+* How to Add Icons & Splash Screen
+* How to COnfig and Build the App for Production
+* How to deploy for iOS and Android
+
+### Lecture 196 - Adding Launcher Icons
+
+* we have a folder with icons we can use in our project
+* in AndroidStudio we open our project and go to /android/app/src/main/res
+* there we have a set of folders for diferent device resolutions with the app icon (default) in it
+* the easiest wat is to: right click on nres => New => Image Asset 
+* we get a tool launched 
+* we leave all as default (name is used in manifest)
+* we choose our image (from course repo)
+* we select adaptive legacy and click next
+* we reinstall our app
+* in iOS: we go to xCode => image xcassets => app icon => we fill the slots with respective images from our folder => uninstall and ins
+
+### Lecture 197 - Adding a Splash Screen
+
+* we can use a react-native-splash-screen package for our app
+* (for android) we go to => android/app/src/main/java/com/rncourse/MainActivity.java
+* there we use the reactnativenavigator MainActivity which extends the SPlashActivity
+* we Oveerride a SPlashActivity method using java
+* we do some android elelemtn imports
+```
+import android.widget.LinearLayout;
+import android.graphics.Color;
+import android.widget.TextView;
+import android.view.Gravity;
+import android.util.TypedValue;
+```
+* we override a SPlashScreen method to create a SPlashLaytout
+```
+   @Override
+   public LinearLayout createSplashLayout() {
+    LinearLayout view = new LinearLayout(this);
+    TextView textView = new TextView(this);
+
+    view.setBackgroundColor(Color.parseColor("#521751"));
+    view.setGravity(Gravity.CENTER);
+
+    textView.setTextColor(Color.parseColor("#fa923f"));
+    textView.setText("Awesome Places");
+    textView.setGravity(Gravity.CENTER);
+    textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 40);
+    view.addView(textView);
+    return view;
+   }
+```
+
+* for iOS we use xCode => LaunchScreen.xib => we edit the screen
+* we uninstall apps and reinstall them
+* IT F>>>> WORKS
+
+### Lecture 198 - Configuring and Building the App
+
+* there is a guide in react-native docs instructing us how to prepare the app for release
+* for iOS 
+  *we need to remove connection to localhost for debugging => xCode => info.plist => App Transport Security Settings => Exception Domains => delete 'localhost'
+  * we need to configure a release scheme => build for release
+  * in inof.plist we can do customization: bundle identifier we use inverted url e.g 'io.agileng.myApp'
+  * then we go to aCode manu => product => scheme => edit scheme => switch from debugging to release
+  * go to xCode menu => product => build
+  * we get a file we can publish in appstore
+* for android
+  * we need to sign our app to publish
+  * we set a signing key running `keytool -genkey -v -keystore my-release-key.keystore -alias my-key-alias -keyalg RSA -keysize 2048 -validity 10000` in our project folder
+  * we eneter a password and info about us
+  * we make sure not to publish the key in github
+  * we move the key to the /android/app folder
+  * we edit (or add) the '~/.gradle/gradle.properties' or '/android/gradle.properties' adding 
+```
+  MYAPP_RELEASE_STORE_FILE=my-release-key.keystore
+MYAPP_RELEASE_KEY_ALIAS=my-key-alias
+MYAPP_RELEASE_STORE_PASSWORD=*****
+MYAPP_RELEASE_KEY_PASSWORD=*****
+```
+  * we now have to edit android config /android/app/build.gradle
+```
+  ...
+android {
+    ...
+    defaultConfig { ... }
+    signingConfigs {
+        release {
+            if (project.hasProperty('MYAPP_RELEASE_STORE_FILE')) {
+                storeFile file(MYAPP_RELEASE_STORE_FILE)
+                storePassword MYAPP_RELEASE_STORE_PASSWORD
+                keyAlias MYAPP_RELEASE_KEY_ALIAS
+                keyPassword MYAPP_RELEASE_KEY_PASSWORD
+            }
+        }
+    }
+    buildTypes {
+        release {
+            ...
+            signingConfig signingConfigs.release
+        }
+    }
+}
+...
+```
+  * we generate release APK running `./gradlew assembleRelease` in /android
+  * this build s the apk file we release to google play store
+  * in AndroidManifest.xml and strings.xml we can edit info on our app
+
+### Lecture 199 - Publish to Google Play Store
+
+* In android developers docs there is detailed info on how to publish on google play.
+* we need to register as developer pay 1time registration fee => create application => title => add metadata => app releases => signe int o google => upload APK => complete all info
+
+### Lecture 200 - Publishing to App Store (iOS)
+
+* we need an apple developer account (use appleID)
+* we need a payed account (annual fee of 99$)
+* we go to iTunes connect => myApps => new App (+) => name, platform,  lang. 
+* we need an id => go to developer console => identifiers => App iDs => + => add info, use bundle identifier from xcode => enable services => register
+* use the app bundle id => use an id => create
+* we can upload our build fropm xcode => product => archive => (validate or upload to appstore)
+* add a certificate => dev consodle =-> certificates +> (+) => App Store AdHoc certificate
+* create a CSR file => upload CSR file => download it -> done
+* Upload 
+
+### Lecture 201 - Publishing the App - Detailed Instructions
+
+**Android**
+
+* 1) Build and sign the app
+  
+  *You first of all need to sign the app. This is a security mechanism that ensures that an APK uploaded to the Google Play Store can clearly be identified.
+  * You can find step-by-step instructions on how to sign an APK [here](https://facebook.github.io/react-native/docs/signed-apk-android.html)
+
+* 2) Release in Google Play Store
+  
+  * Actually, you can distribute your app via different channels, you can learn more [here](https://developer.android.com/studio/publish/index.html)
+  * But let's focus on the Google Play Store for now.
+  * First of all, you need a Google developer account. You can sign in or create one when visiting [googleplay]( https://play.google.com/apps/publish/)
+  * This is also the place where you will then upload your app. A developer account costs $25 - but you only pay this once. It's no recurring fee.
+  * Once you got a developer account, you can create an app in the Google Play console, configure it and upload your APK.
+  * This is already everything you have to do - feel free to submit your app for review as soon as you're happy with it! :)
+
+**iOS**
+
+* 1) Build your App for production
+  
+  * As a first step, you need to build your app for production. This involves adjusting the info.plist file and setting up a release build schema in XCode. Detailed instructions can be found [here](https://facebook.github.io/react-native/docs/running-on-device.html#building-your-app-for-production)
+
+* 2) Creating an App and Bundle ID
+  
+  * Your app requires a bundle id and optionally also an App ID. The latter is only mandatory if you use any special services (e.g. In-App purchases) that requires such an ID. Otherwise, you can use the default wildcard ID.
+  * If you need or want an App ID, you can create one as described [here](https://developer.apple.com/library/content/documentation/IDEs/Conceptual/AppDistributionGuide/MaintainingProfiles/MaintainingProfiles.html#//apple_ref/doc/uid/TP40012582-CH30-SW991)
+  * You also need to set a bundle ID in your XCode project (you already get a default one by React Native, feel free to adjust it to your needs though). You can learn more about setting a bundle ID [here](https://developer.apple.com/library/content/documentation/IDEs/Conceptual/AppDistributionGuide/ConfiguringYourApp/ConfiguringYourApp.html#//apple_ref/doc/uid/TP40012582-CH28-SW16)
+
+* 3) Create an App on iTunes Connect
+
+  * Comparable to the Google Play Console, you also need to create an app on [iTunes Connect](https://itunesconnect.apple.com/)
+  * Make sure to use the same bundle ID as you chose in XCode.
+  * Once all is configured there, you can deploy your app from XCode.
+
+* 4) Deploying the App from XCode
+
+  * To deploy an App from XCode (and therefore your machine) to your project/ App on iTunes connect, you use XCode. There, you first of all need to create an archive.
+  * An archive is created by running "Product" => "Archive" in XCode.
+  * Once the archive was created, the archive explorer should open. In there, you can upload the app to iTunes connect.
+* You can read more about the process [here](https://developer.apple.com/library/content/documentation/IDEs/Conceptual/AppDistributionGuide/UploadingYourApptoiTunesConnect/UploadingYourApptoiTunesConnect.html#//apple_ref/doc/uid/TP40012582-CH36-SW2)
+
+### Lecture 202 - Useful Resources and Links 
+
+* [Publishing an Android app](https://developer.android.com/studio/publish/index.html)
+* [Publishing an iOS app](https://developer.apple.com/library/content/documentation/IDEs/Conceptual/AppDistributionGuide/SubmittingYourApp/SubmittingYourApp.html)

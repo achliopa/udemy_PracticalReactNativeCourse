@@ -29,7 +29,13 @@ import App from '../../../App';
 			alert("Authentication failed, please try again!");
 			dispatch(uiStopLoading());
 		})
-		.then((res) => res.json())
+		.then(res => {
+			if(res.ok){
+				return res.json();
+			} else {
+				throw new Error();
+			}
+		})
 		.then(parsedRes => {
 			dispatch(uiStopLoading());
 			if(!parsedRes.idToken){
@@ -110,7 +116,13 @@ export const authGetToken = () => {
 							body: `grant_type=refresh_token&refresh_token=${refreshToken}` 
 						});
 					})
-					.then(res => res.json())
+					.then(res => {
+						if(res.ok){
+							return res.json();
+						} else {
+							throw new Error();
+						}
+					})
 					.then(parsedRes => {
 						if(parsedRes.id_token){
 							console.log("Refresh token worked!");
@@ -126,7 +138,7 @@ export const authGetToken = () => {
 			})
 			.then(token => {
 				if(!token){
-					threow(new Error());
+					throw new Error();
 				} else {
 					return token;
 				}
